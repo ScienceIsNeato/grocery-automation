@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# venv
+.venv/
+venv/
+
+# Local env / secrets
+.envrc
+.env
+credentials.json
+token.json
+
+# OS
+.DS_Store
+
+# Data that is local state
+data/unavailable.json
+data/session.json
+
+

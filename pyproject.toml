@@ -1,0 +1,22 @@
+[project]
+name = "grocery-automation"
+version = "0.1.0"
+description = "Google Tasks to Hy-Vee cart automation"
+requires-python = ">=3.11"
+dependencies = [
+  "google-api-python-client",
+  "google-auth",
+  "google-auth-oauthlib",
+  "playwright",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+

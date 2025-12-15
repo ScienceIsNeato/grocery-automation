@@ -1,0 +1,36 @@
+{
+  "products": {
+    "milk": {
+      "product_id": "",
+      "url": "",
+      "display_name": "Hy-Vee Vitamin D Milk",
+      "original_requests": ["milk", "whole milk"],
+      "added": "2025-12-15T05:16:00",
+      "size": "1 gal",
+      "price": "$5.29"
+    },
+    "bread": {
+      "product_id": "",
+      "url": "",
+      "display_name": "Hy-Vee White Bread",
+      "original_requests": ["bread", "white bread"],
+      "added": "2025-12-15T05:20:00",
+      "size": "20 oz",
+      "price": "$1.99"
+    },
+    "eggs": {
+      "product_id": "",
+      "url": "",
+      "display_name": "Hy-Vee Grade A Large Eggs",
+      "original_requests": ["eggs", "large eggs"],
+      "added": "2025-12-15T05:22:00",
+      "size": "12 ct",
+      "price": "$2.99"
+    }
+  },
+  "version": "1.0",
+  "last_updated": "2025-12-15T05:22:00",
+  "notes": "Product library for Hy-Vee automation"
+}
+
+
