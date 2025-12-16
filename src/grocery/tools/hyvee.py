@@ -232,4 +232,101 @@ def get_cart_contents(page: Any) -> list[str]:
     return items
 
 
+def _matches_cart_item(cart_item_name: str, expected_display_name: str) -> bool:
+    """Best-effort matching for cart items vs our mapping's display name."""
+    a = (cart_item_name or "").strip().lower()
+    b = (expected_display_name or "").strip().lower()
+    if not a or not b:
+        return False
+    return b in a or a in b
+
+
+def ensure_items_in_cart(
+    page: Any,
+    *,
+    products_path: "Any",
+    items: list[str],
+    unavailable_path: "Any | None" = None,
+    max_attempts: int = 2,
+) -> None:
+    """
+    Ensure each mapped item is present in the cart (idempotent).
+
+    This is intentionally best-effort and defensive:
+    - If already present, we skip.
+    - If missing, we try search → click Add to cart → verify via cart contents.
+    - If search yields nothing, log unavailable and raise structured error.
+    - If add/verify fails after retries, raise structured error.
+    """
+    from pathlib import Path
+
+    from grocery.tools import library, unavailable
+    from grocery.tools.errors import GroceryError, add_to_cart_failed, hyvee_no_search_results
+
+    products_path = Path(products_path)
+    unavailable_path = Path(unavailable_path) if unavailable_path is not None else None
+
+    data = library.load_products(products_path)
+    products = data.get("products", {}) or {}
+
+    # Start with a cart snapshot to avoid re-fetching on every item.
+    cart_items = get_cart_contents(page)
+
+    for item in items:
+        key = library.normalize_key(item)
+        mapping = products.get(key)
+        if not mapping:
+            raise GroceryError(
+                code=1,
+                short="Unknown/unmapped item",
+                context=f'Item "{item}" has no mapping in products.json',
+                next_step="Add mapping to products.json then re-run",
+            )
+
+        display_name = str(mapping.get("display_name") or item)
+
+        # Idempotent: if already in cart, skip.
+        if any(_matches_cart_item(x, display_name) for x in cart_items):
+            continue
+
+        # Prefer a more specific search query if available.
+        query = str(mapping.get("display_name") or item)
+        search_url = build_search_url(query)
+
+        candidates = search(page, query=query, limit=8)
+        if not candidates:
+            if unavailable_path is not None:
+                unavailable.append_unavailable(
+                    unavailable_path,
+                    item=item,
+                    reason="not_found",
+                    search_term=query,
+                )
+            raise hyvee_no_search_results(item, search_url)
+
+        # Choose the best candidate (exact name match beats first result).
+        chosen = None
+        for c in candidates:
+            if c.name.strip().lower() == display_name.strip().lower():
+                chosen = c
+                break
+        chosen = chosen or candidates[0]
+
+        ok = False
+        last_cart = list(cart_items)
+        for attempt in range(1, max_attempts + 1):
+            if add_to_cart_from_search(page, add_button_label=chosen.add_button_label):
+                cart_items = get_cart_contents(page)
+                if any(_matches_cart_item(x, display_name) for x in cart_items):
+                    ok = True
+                    break
+
+            # If cart is changing but our item still isn't present, retry.
+            last_cart = list(cart_items)
+            cart_items = get_cart_contents(page) or last_cart
+
+        if not ok:
+            manual_url = chosen.url or search_url
+            raise add_to_cart_failed(item, max_attempts, manual_url)
+
 

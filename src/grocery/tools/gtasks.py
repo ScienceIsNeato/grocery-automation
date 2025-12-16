@@ -100,6 +100,57 @@ def mark_tasks_complete_by_title(
     return completed
 
 
+def move_open_tasks_by_title(
+    *,
+    repo_root: Path,
+    source_list_name: str,
+    dest_list_name: str,
+    titles: list[str],
+) -> int:
+    """
+    Move open tasks matching `titles` from one list to another.
+
+    Google Tasks doesn't support "moving a task between lists" directly, so we:
+    - list open tasks in the source list
+    - insert new tasks in the destination list with the same title (and notes if present)
+    - delete the original tasks from the source list
+    """
+    service = _build_tasks_service(repo_root=repo_root, scopes=DEFAULT_SCOPES_READWRITE)
+
+    source_id = find_task_list_id(service, source_list_name)
+    if not source_id:
+        raise ValueError(f"Task list not found: {source_list_name}")
+    dest_id = find_task_list_id(service, dest_list_name)
+    if not dest_id:
+        raise ValueError(f"Task list not found: {dest_list_name}")
+
+    wanted = {t.lower().strip() for t in titles}
+    if not wanted:
+        return 0
+
+    results = service.tasks().list(tasklist=source_id, showCompleted=False, showHidden=False).execute()
+    tasks = results.get("items", [])
+
+    moved = 0
+    for task in tasks:
+        title = (task.get("title") or "").strip()
+        if not title:
+            continue
+        if title.lower().strip() not in wanted:
+            continue
+
+        body: dict[str, Any] = {"title": title}
+        notes = task.get("notes")
+        if notes:
+            body["notes"] = notes
+
+        service.tasks().insert(tasklist=dest_id, body=body).execute()
+        service.tasks().delete(tasklist=source_id, task=task["id"]).execute()
+        moved += 1
+
+    return moved
+
+
 _LEADING_QTY_RE = re.compile(r"^\s*(\d+)\s+(.*)$")
 _DOZEN_RE = re.compile(r"^\s*(?:(\d+)\s+)?dozen\s+(.*)$", re.IGNORECASE)
 

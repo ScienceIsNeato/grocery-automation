@@ -7,6 +7,8 @@ class _FakeTasks:
     def __init__(self, items):
         self._items = items
         self.updated: list[tuple[str, str]] = []
+        self.inserted: list[tuple[str, dict]] = []
+        self.deleted: list[tuple[str, str]] = []
 
     def list(self, **kwargs):
         assert "tasklist" in kwargs
@@ -17,6 +19,18 @@ class _FakeTasks:
         assert task
         assert body.get("status") == "completed"
         self.updated.append((tasklist, task))
+        return self
+
+    def insert(self, *, tasklist: str, body: dict):
+        assert tasklist
+        assert body.get("title")
+        self.inserted.append((tasklist, body))
+        return self
+
+    def delete(self, *, tasklist: str, task: str):
+        assert tasklist
+        assert task
+        self.deleted.append((tasklist, task))
         return self
 
     def execute(self):
@@ -90,5 +104,37 @@ def test_mark_tasks_complete_by_title_missing_list(monkeypatch, tmp_path: Path):
 
     with pytest.raises(ValueError, match="Task list not found"):
         gtasks.mark_tasks_complete_by_title(repo_root=tmp_path, list_name="Groceries", titles=["milk"])
+
+
+def test_move_open_tasks_by_title_inserts_into_dest_and_deletes_from_source(monkeypatch, tmp_path: Path):
+    from grocery.tools import gtasks
+
+    fake_tasks = _FakeTasks(
+        items=[
+            {"id": "1", "title": "Ornaments"},
+            {"id": "2", "title": "Milk"},
+        ]
+    )
+    fake_service = _FakeService(
+        tasklists=[{"title": "Groceries", "id": "g"}, {"title": "To Purchase for Condo", "id": "c"}],
+        tasks=fake_tasks,
+    )
+
+    def _fake_build(*, repo_root: Path, scopes: list[str]):
+        assert repo_root == tmp_path
+        assert scopes == gtasks.DEFAULT_SCOPES_READWRITE
+        return fake_service
+
+    monkeypatch.setattr(gtasks, "_build_tasks_service", _fake_build)
+
+    moved = gtasks.move_open_tasks_by_title(
+        repo_root=tmp_path,
+        source_list_name="Groceries",
+        dest_list_name="To Purchase for Condo",
+        titles=["ornaments"],
+    )
+    assert moved == 1
+    assert fake_tasks.inserted == [("c", {"title": "Ornaments"})]
+    assert fake_tasks.deleted == [("g", "1")]
 
 

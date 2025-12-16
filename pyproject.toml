@@ -10,10 +10,23 @@ dependencies = [
   "playwright",
 ]
 
+[project.scripts]
+grocery-run = "grocery.run:main"
+
 [project.optional-dependencies]
 dev = [
   "pytest",
 ]
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

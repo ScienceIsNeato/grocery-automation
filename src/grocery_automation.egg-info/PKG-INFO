@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: grocery-automation
+Version: 0.1.0
+Summary: Google Tasks to Hy-Vee cart automation
+Requires-Python: >=3.11
+Requires-Dist: google-api-python-client
+Requires-Dist: google-auth
+Requires-Dist: google-auth-oauthlib
+Requires-Dist: playwright
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"

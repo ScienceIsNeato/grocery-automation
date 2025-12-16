@@ -26,10 +26,28 @@
       "added": "2025-12-15T05:22:00",
       "size": "12 ct",
       "price": "$2.99"
+    },
+    "frozen shrimp cocktail": {
+      "product_id": "61417",
+      "url": "https://www.hy-vee.com/aisles-online/p/61417/Fish-Market-Shrimp-Platter-with-Cocktail-Sauce-2630-Cooked-And-Peeled",
+      "display_name": "Fish Market Shrimp Platter with Cocktail Sauce 2630 Cooked And Peeled",
+      "original_requests": ["frozen shrimp cocktail"],
+      "added": "2025-12-16T06:33:57Z",
+      "size": "",
+      "price": ""
+    },
+    "short carrots": {
+      "product_id": "46176",
+      "url": "https://www.hy-vee.com/aisles-online/p/46176/Grimmway-Baby-Carrots",
+      "display_name": "Grimmway Baby Carrots",
+      "original_requests": ["short carrots"],
+      "added": "2025-12-16T06:34:45Z",
+      "size": "",
+      "price": ""
     }
   },
   "version": "1.0",
-  "last_updated": "2025-12-15T05:22:00",
+  "last_updated": "2025-12-16T06:34:45Z",
   "notes": "Product library for Hy-Vee automation"
 }
 
