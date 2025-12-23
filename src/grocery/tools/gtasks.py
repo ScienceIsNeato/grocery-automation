@@ -63,13 +63,29 @@ def find_task_list_id(service: Any, task_list_name: str) -> Optional[str]:
 
 
 def fetch_open_task_titles(*, repo_root: Path, list_name: str) -> list[str]:
-    service = _build_tasks_service(repo_root=repo_root, scopes=DEFAULT_SCOPES_READONLY)
+    # Always use read-write scope so token stays valid for all operations
+    service = _build_tasks_service(repo_root=repo_root, scopes=DEFAULT_SCOPES_READWRITE)
     task_list_id = find_task_list_id(service, list_name)
     if not task_list_id:
         raise ValueError(f"Task list not found: {list_name}")
-    results = service.tasks().list(tasklist=task_list_id, showCompleted=False, showHidden=False).execute()
-    tasks = results.get("items", [])
-    return [t.get("title", "").strip() for t in tasks if t.get("title")]
+    
+    # Paginate through all tasks (API returns max 100 per page by default)
+    all_tasks = []
+    page_token = None
+    while True:
+        results = service.tasks().list(
+            tasklist=task_list_id,
+            showCompleted=False,
+            showHidden=False,
+            maxResults=100,
+            pageToken=page_token,
+        ).execute()
+        all_tasks.extend(results.get("items", []))
+        page_token = results.get("nextPageToken")
+        if not page_token:
+            break
+    
+    return [t.get("title", "").strip() for t in all_tasks if t.get("title")]
 
 
 def mark_tasks_complete_by_title(

@@ -5,33 +5,54 @@ This file is intended to let a new engineer (or future-you) take over this sessi
 ## 0) One-sentence goal
 Automate “Google Tasks grocery list → Hy-Vee cart” using **small, testable tools** orchestrated by one command, with a **repeatable, idempotent protocol** and a **hard manual gate before checkout**.
 
-## 1) Current state (what actually works today)
-### ✅ Confirmed working
-- **Repo structure + packaging**: Python package under `src/grocery/`.
-- **Unit tests**: `pytest` suite exists and is expected to be the primary safety net.
-- **Local venv**: project-local `.venv/` exists (created 2025-12-15) and `python -m pytest` passes inside it.
-- **Google Tasks toolchain**:
-  - Fetch open task titles from a named list.
-  - Normalize item text (voice-to-text corrections, quantity parsing) using `data/substitutions.json`.
-- **Product library**:
-  - Verify which normalized items are mapped in `data/products.json`.
-  - Deterministically identify unmapped items.
-- **Orchestrator (mapping gate)**:
-  - `python -m grocery.run --list-name <name> --dry-run` fetches tasks → normalizes → verifies mappings.
-  - If anything is unmapped, it **prints a structured error** with a Hy-Vee search URL and exits with a **non-zero exit code**.
+### Accomplishments
+*   **Robust Cart Orchestration**:
+    *   **Idempotency**: Implemented pre-scan logic that checks the cart before adding. Reduced run time from minutes to seconds for re-runs.
+    *   **Audit System**: Added "Token Subset Matching" audit that verifies cart contents against the expected list using Name-based matching (handles flavor variations like "Pop-Tarts").
+    *   **Hallucination Check**: Explicitly flags items in the cart that were not requested (e.g. "Eggs").
+    *   **Resilience**: Added robust session recovery (detects "Log in to add") and "Chrome Quit Unexpectedly" prevention.
+*   **Verification**:
+    *   Validated logic with user-driven Console JS commands to ensure DOM assumptions matched reality.
+*   **Google Tasks Integration**:
+    *   Fixed OAuth scope issues (`read-write`) to prevent token expiration.
+    *   Seamless sync of Task List -> Dictionary -> Cart.
+*   **Foundational Tools**:
+    *   `library.py` for product mapping management.
+    *   `unavailable.py` for tracking missing items.
 
-### 🚧 Not implemented yet (by design)
-- **Hy-Vee cart orchestration layer** is *not* wired into the orchestrator.
-  - Running without `--dry-run` currently exits with:
-    - `code=99` and message: “Hy-Vee orchestration layer not implemented yet”.
+### Technical Learnings
+*   **Hypothesis Testing**: Guessing DOM structures (like `data-product-id`) failed. Using `page.content()` raw dumps or Analytics tags (`window.svq`) provided the only source of truth.
+*   **Fuzzy Matching**: Simple string equality fails on e-commerce titles due to punctuation (",") and inserted words (Flavor variations). **Token Set Intersection** is the required solution.
+*   **Hydration Issues**: Next.js client-side rendering caused standard `wait_for_selector` timeouts. Fallback to `page.content()` string scanning was necessary for stability.
 
-## 2) Operating protocol (the intended repeatable workflow)
-This is the “plain and simple protocol with explicit steps” the project is built around.
+### Recent Issues & Fixes
+*   **False Positives in Audit**: Audit initially flagged "Pop-Tarts" as unexpected because of extra words in the title.
+    *   *Fix*: Implemented `get_tokens()` subset matching to ignore inserted flavor text.
+*   **Unknown IDs**: Visual List order did not match Analytics ID order.
+    *   *Fix*: Switched to Name-Based Audit which is human-readable and order-independent.
 
-### Phase A — Mapping growth loop (safe to repeat)
-1. Run:
-   - `python -m grocery.run --list-name "Groceries" --dry-run`
-2. If it exits with **Unknown/Unmapped Item**:
+### Immediate Next Steps
+1.  **GitHub Actions (CI)**:
+    *   Create `.github/workflows/test.yaml` to run `pytest`.
+2.  **Scheduling**:
+    *   Add to `crontab` for weekly execution.
+3.  **Notifications**:
+    *   Expand notification system (currently local macOS) to Email/SMS if needed.
+
+### Todo List
+*   [ ] **CI Implementation**: Set up GitHub Actions for automated testing.
+*   [ ] **Notification**: Add `notify_user()` function (Desktop/Email).
+*   [ ] **Unmapped Wizard**: Interactive CLI mode to resolve unmapped items instantly.
+*   [ ] **Substitutions**: Handle out-of-stock items with intelligent substitution logic.
+
+### Last Updated
+2025-12-16
+
+### Commands
+*   **Run**: `python -m grocery.run --list-name "Groceries"`
+*   **Test**: `pytest`
+*   **Lint**: `ruff check .`
+*   **Format**: `ruff format .`
    - Open the provided Hy-Vee search URL.
    - Identify the correct product.
    - Add mapping to `data/products.json`.
@@ -143,95 +164,74 @@ Baseline exit code expectations (expand as implemented):
   - strict idempotency requirements
   - TDD and modular tooling
 
-## 10) Current session handoff (2025-12-16)
+## 10) Current session handoff (2025-12-16 01:20)
 
 ### What just got implemented (this session)
-1. **Phase B cart orchestration (complete)**:
-   - `ensure_items_in_cart()` in `src/grocery/tools/hyvee.py`
-   - Idempotent: checks cart, adds missing items, logs unavailable when search fails
-   - Unit tests with fakes (28 passing tests total)
-   - Wired into `grocery.run` main orchestrator for non-`--dry-run` path
+1. **Mapping loop completed** ✅:
+   - All items in "Groceries" list are now mapped
+   - `--dry-run` prints: "All items mapped."
+   - 9 product mappings added to `data/products.json`
 
-2. **Non-grocery routing protocol (complete)**:
-   - New CLI mode: `--move-item "item" --move-to-list "To Purchase for Condo"`
-   - Moves tasks from Groceries list to Condo list via Google Tasks API
-   - Use this when dry-run stops on items that shouldn't be bought at Hy‑Vee
-   - Unit tests added to `tests/test_gtasks_complete.py`
+2. **New CLI flags added**:
+   - `--show-all-unmapped`: Shows all unmapped items at once (batch mode)
+   - `--remove-item "item"`: Marks a task complete (removes from active list)
+   - Both flags are repeatable for batch operations
 
-3. **Project now installable**:
-   - Updated `pyproject.toml` with `[build-system]` + `[project.scripts]`
-   - Installed editable in `.venv`: `pip install -e ".[dev]"`
-   - CLI works: `python -m grocery.run ...` or `grocery-run ...`
+3. **Tasks cleaned up**:
+   - Moved to Condo list: ornaments, miracle grove plant food, six long candles
+   - Marked complete: yasso bars, jello puddings, vanilla wafers, disposable gloves
 
-4. **OAuth/auth setup (complete)**:
-   - `credentials.json` + `token.json` in repo root (gitignored)
-   - `.envrc` contains `HYVEE_EMAIL` / `HYVEE_PASSWORD` (gitignored)
-   - Playwright browsers installed in `.venv`
+4. **OAuth token refreshed**: Regenerated token.json with read-write scope
 
-### Where we are in the mapping loop
-- Ran `--dry-run` against real "Groceries" task list
-- **Mapped so far**:
-  - `frozen shrimp cocktail` → Fish Market Shrimp Platter (product_id 61417)
-  - `short carrots` → Grimmway Baby Carrots (product_id 46176)
-- **Stopped on**: `ornaments` (non-grocery item)
-
-### Immediate next steps (for next agent)
-1. **Move "ornaments" out of Groceries list**:
-   ```bash
-   cd /Users/pacey/Documents/SourceCode/grocery-automation && \
-   source .venv/bin/activate && source .envrc && \
-   python -m grocery.run --list-name "Groceries" \
-     --move-item "ornaments" \
-     --move-to-list "To Purchase for Condo"
-   ```
-
-2. **Re-run dry-run to find next unmapped item**:
-   ```bash
-   python -m grocery.run --list-name "Groceries" --dry-run
-   ```
-
-3. **Repeat mapping loop** until dry-run prints: `All items mapped.`
-   - For each unmapped grocery item:
-     - Open Hy‑Vee search URL printed in error
-     - Find product page URL
-     - Add to `data/products.json` with product_id from URL
-   - For each non-grocery item:
-     - Use `--move-item` to move to Condo list
-
-4. **Once all mapped, run the full cart orchestration**:
-   ```bash
-   python -m grocery.run --list-name "Groceries"
-   ```
-   - This will log into Hy‑Vee (headful browser by default)
-   - Add all mapped items to cart (idempotent)
-   - Stop before checkout (manual gate)
+### Immediate next step
+**Run the full cart orchestration**:
+```bash
+cd /Users/pacey/Documents/SourceCode/grocery-automation && \
+source .venv/bin/activate && source .envrc && \
+python -m grocery.run --list-name "Groceries"
+```
+This will:
+- Log into Hy-Vee (headful browser)
+- Add all mapped items to cart (idempotent)
+- Stop before checkout (manual gate)
 
 ### Commands to commit this session's work
 ```bash
 cd /Users/pacey/Documents/SourceCode/grocery-automation
 git add -A
-git commit -m "feat: Phase B cart orchestration + non-grocery routing
+git commit -m "feat: complete mapping loop + batch CLI flags
 
-- Implement ensure_items_in_cart() with idempotency + unavailable logging
-- Add --move-item CLI mode to route non-grocery tasks to Condo list
-- Make project installable (pyproject.toml build-system + scripts)
-- Wire Phase B into orchestrator main() for non-dry-run path
-- Add unit tests for cart tools + task moving (28 passing)
-- Map 2 items: frozen shrimp cocktail, short carrots
-- Update STATUS.md with session handoff for next agent"
+- Add --show-all-unmapped flag to display all unmapped items at once
+- Add --remove-item flag to mark tasks complete (batch removals)
+- Add 9 product mappings to data/products.json
+- Clean up tasks: move non-grocery items, mark completed items done
+- Regenerate OAuth token with read-write scope
+- Update STATUS.md with session handoff"
 ```
 
 ### Files changed this session
-- `src/grocery/tools/hyvee.py` (added `ensure_items_in_cart()`)
-- `src/grocery/tools/gtasks.py` (added `move_open_tasks_by_title()`)
-- `src/grocery/tools/errors.py` (added `hyvee_no_search_results()`, `non_grocery_item()`)
-- `src/grocery/run.py` (added `--move-item` mode + Phase B wiring)
-- `tests/test_hyvee_cart_tools.py` (added idempotency + unavailable tests)
-- `tests/test_gtasks_complete.py` (added task moving tests)
-- `tests/test_orchestrator_non_dry_run.py` (created)
-- `pyproject.toml` (added build-system + scripts)
-- `data/products.json` (added 2 product mappings)
+- `src/grocery/run.py` (added `--show-all-unmapped`, `--remove-item` flags)
+- `data/products.json` (9 product mappings)
 - `STATUS.md` (this handoff section)
 
-## 11) Last updated
-- 2025-12-16 (Phase B complete, mid-mapping-loop)
+## 12) TODOs - Future Improvements
+
+### Verification & QA
+- [ ] **Cart count sanity check**: Track initial count, items to add, expected final count - verify at end
+- [ ] **Per-item verification**: After each add, confirm cart count increased by 1
+- [ ] **Debug dump on error**: On any failure, dump screenshot, HTML, URL to `/tmp/hyvee_debug/`
+- [ ] **Reverse-map cart items**: At end of session, warn for any items in cart that don't reverse-map to a known product in the list (catches hallucinated adds)
+- [ ] **Idempotent retries**: On transient failure, retry with exponential backoff
+
+### CI/CD
+- [ ] **Rate limiting**: Add delays between requests to avoid bot detection/blocking
+- [ ] **Headless validation**: Periodic headless test runs against staging/test account
+- [ ] **Integration tests**: End-to-end tests with mock Playwright responses
+
+### UX Improvements  
+- [ ] **Quantity support**: Handle `default_count` to add multiple of same item
+- [ ] **Progress bar**: Show X/Y items processed
+- [ ] **Dry-run cart preview**: Show what would be added without browser
+
+## 13) Last updated
+- 2025-12-16 03:35 (Rewrote cart functions with verification)

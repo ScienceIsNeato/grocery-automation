@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unmapped Grocery Items</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #4CAF50; margin-bottom: 5px; }
+        .timestamp { color: #888; font-size: 14px; margin-bottom: 20px; }
+        .instructions {
+            background: #16213e;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        .instructions ol { margin: 10px 0 0 0; padding-left: 20px; }
+        .instructions li { margin: 6px 0; color: #bbb; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        th {
+            background: #0f3460;
+            color: #4CAF50;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        tr:hover { background: #1f2f50; }
+        .row-num { color: #666; width: 30px; }
+        .item-name { font-weight: 500; max-width: 250px; }
+        .search-link {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .search-link:hover { background: #1976D2; }
+        .url-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #3a3a5a;
+            border-radius: 4px;
+            font-size: 13px;
+            background: #0a0a1a;
+            color: #eee;
+        }
+        .url-input:focus { border-color: #4CAF50; outline: none; }
+        .url-input.filled { border-color: #4CAF50; background: #0a2a1a; }
+        .status { width: 30px; font-size: 18px; }
+        .action-bar {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .submit-btn {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .submit-btn:hover { background: #45a049; }
+        .submit-btn:disabled { background: #555; cursor: not-allowed; }
+        .count { color: #888; font-size: 14px; }
+        .output-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .output-section.visible { display: block; }
+        .output-section h3 { color: #4CAF50; margin-bottom: 10px; }
+        .json-output {
+            width: 100%;
+            height: 300px;
+            background: #0a0a1a;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #9cdcfe;
+            resize: vertical;
+        }
+        .copy-all-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .copy-all-btn:hover { background: #F57C00; }
+        .copy-all-btn.copied { background: #4CAF50; }
+    </style>
+</head>
+<body>
+    <h1>🛒 Unmapped Items (42)</h1>
+    <p class="timestamp">Generated: 2025-12-23 03:28</p>
+    
+    <div class="instructions">
+        <strong>Workflow:</strong>
+        <ol>
+            <li>Click "🔍 Search" to find each product on Hy-Vee</li>
+            <li>Copy the product page URL and paste it in the input field</li>
+            <li>Repeat for all items (or skip items you don't want)</li>
+            <li>Click <strong>"Generate JSON"</strong> to create all mappings at once</li>
+            <li>Copy and paste the JSON into <code>data/products.json</code></li>
+        </ol>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Item Name</th>
+                <th>Search</th>
+                <th>Product URL</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="items-body">
+            
+        <tr data-item="cream of mushroom soup">
+            <td class="row-num">1</td>
+            <td class="item-name">cream of mushroom soup</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=cream+of+mushroom+soup" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="whole weat egg noodles">
+            <td class="row-num">2</td>
+            <td class="item-name">whole weat egg noodles</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=whole+weat+egg+noodles" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="whole frozen quiche">
+            <td class="row-num">3</td>
+            <td class="item-name">whole frozen quiche</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=whole+frozen+quiche" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="shredded cheddar cheese">
+            <td class="row-num">4</td>
+            <td class="item-name">shredded cheddar cheese</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=shredded+cheddar+cheese" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="half and half">
+            <td class="row-num">5</td>
+            <td class="item-name">half and half</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=half+and+half" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="fresh thyme">
+            <td class="row-num">6</td>
+            <td class="item-name">fresh thyme</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=fresh+thyme" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="garlic">
+            <td class="row-num">7</td>
+            <td class="item-name">garlic</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=garlic" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="bag of potatoes">
+            <td class="row-num">8</td>
+            <td class="item-name">bag of potatoes</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=bag+of+potatoes" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="chicken thigs">
+            <td class="row-num">9</td>
+            <td class="item-name">chicken thigs</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=chicken+thigs" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="cocktail shrimp">
+            <td class="row-num">10</td>
+            <td class="item-name">cocktail shrimp</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=cocktail+shrimp" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="pickled herring">
+            <td class="row-num">11</td>
+            <td class="item-name">pickled herring</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=pickled+herring" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="asian salad kit">
+            <td class="row-num">12</td>
+            <td class="item-name">asian salad kit</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=asian+salad+kit" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="stuffing mix">
+            <td class="row-num">13</td>
+            <td class="item-name">stuffing mix</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=stuffing+mix" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="orange">
+            <td class="row-num">14</td>
+            <td class="item-name">orange</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=orange" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="quiche">
+            <td class="row-num">15</td>
+            <td class="item-name">quiche</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=quiche" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="frozen shrimp alfredo">
+            <td class="row-num">16</td>
+            <td class="item-name">frozen shrimp alfredo</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=frozen+shrimp+alfredo" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="frozen sweedish meatballs">
+            <td class="row-num">17</td>
+            <td class="item-name">frozen sweedish meatballs</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=frozen+sweedish+meatballs" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="froxen spagheet and meat sauce dinner">
+            <td class="row-num">18</td>
+            <td class="item-name">froxen spagheet and meat sauce dinner</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=froxen+spagheet+and+meat+sauce+dinner" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="yasso bars 2x chocolate fudge">
+            <td class="row-num">19</td>
+            <td class="item-name">yasso bars 2x chocolate fudge</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=yasso+bars+2x+chocolate+fudge" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="yasso bars 2x cherry chocolate crunch">
+            <td class="row-num">20</td>
+            <td class="item-name">yasso bars 2x cherry chocolate crunch</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=yasso+bars+2x+cherry+chocolate+crunch" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="yasso bars 2x cookie dough">
+            <td class="row-num">21</td>
+            <td class="item-name">yasso bars 2x cookie dough</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=yasso+bars+2x+cookie+dough" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="christmas cookies from delhi">
+            <td class="row-num">22</td>
+            <td class="item-name">christmas cookies from delhi</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=christmas+cookies+from+delhi" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="cinnamon rolls parentheses in tubes)">
+            <td class="row-num">23</td>
+            <td class="item-name">cinnamon rolls parentheses in tubes)</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=cinnamon+rolls+parentheses+in+tubes)" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="lightly salted potato chips">
+            <td class="row-num">24</td>
+            <td class="item-name">lightly salted potato chips</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=lightly+salted+potato+chips" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="tapioca pudding cups">
+            <td class="row-num">25</td>
+            <td class="item-name">tapioca pudding cups</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=tapioca+pudding+cups" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="cheddar cheese, shredded">
+            <td class="row-num">26</td>
+            <td class="item-name">cheddar cheese, shredded</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=cheddar+cheese,+shredded" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="butter 2 lb ( salted and parentheses">
+            <td class="row-num">27</td>
+            <td class="item-name">butter 2 lb ( salted and parentheses</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=butter+2+lb+(+salted+and+parentheses" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="potato chips: salt and vinegar flavor">
+            <td class="row-num">28</td>
+            <td class="item-name">potato chips: salt and vinegar flavor</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=potato+chips:+salt+and+vinegar+flavor" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="craft macaroni and cheese">
+            <td class="row-num">29</td>
+            <td class="item-name">craft macaroni and cheese</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=craft+macaroni+and+cheese" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="miralax laxative large bottle">
+            <td class="row-num">30</td>
+            <td class="item-name">miralax laxative large bottle</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=miralax+laxative+large+bottle" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="fresca bottles">
+            <td class="row-num">31</td>
+            <td class="item-name">fresca bottles</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=fresca+bottles" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="tomatoes 3">
+            <td class="row-num">32</td>
+            <td class="item-name">tomatoes 3</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=tomatoes+3" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="cranberry juice free bottles">
+            <td class="row-num">33</td>
+            <td class="item-name">cranberry juice free bottles</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=cranberry+juice+free+bottles" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="sour cream two small containers">
+            <td class="row-num">34</td>
+            <td class="item-name">sour cream two small containers</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=sour+cream+two+small+containers" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="cottage cheese two small containers">
+            <td class="row-num">35</td>
+            <td class="item-name">cottage cheese two small containers</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=cottage+cheese+two+small+containers" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="sociables crackers two boxes">
+            <td class="row-num">36</td>
+            <td class="item-name">sociables crackers two boxes</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=sociables+crackers+two+boxes" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="bread whole wheat">
+            <td class="row-num">37</td>
+            <td class="item-name">bread whole wheat</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=bread+whole+wheat" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="splenda packages large box">
+            <td class="row-num">38</td>
+            <td class="item-name">splenda packages large box</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=splenda+packages+large+box" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="gallon sized ziplocs">
+            <td class="row-num">39</td>
+            <td class="item-name">gallon sized ziplocs</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=gallon+sized+ziplocs" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="white vinegar">
+            <td class="row-num">40</td>
+            <td class="item-name">white vinegar</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=white+vinegar" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="glasstop cleaner">
+            <td class="row-num">41</td>
+            <td class="item-name">glasstop cleaner</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=glasstop+cleaner" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        <tr data-item="refresh artificial tears">
+            <td class="row-num">42</td>
+            <td class="item-name">refresh artificial tears</td>
+            <td><a href="https://www.hy-vee.com/aisles-online/search?search=refresh+artificial+tears" target="_blank" class="search-link">🔍 Search</a></td>
+            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
+            <td class="status">⏳</td>
+        </tr>
+        </tbody>
+    </table>
+    
+    <div class="action-bar">
+        <button class="submit-btn" onclick="generateJSON()">📦 Generate JSON</button>
+        <span class="count"><span id="filled-count">0</span> / 42 filled</span>
+    </div>
+    
+    <div class="output-section" id="output-section">
+        <h3>✅ Generated JSON (paste into products.json)</h3>
+        <textarea class="json-output" id="json-output" readonly></textarea>
+        <button class="copy-all-btn" onclick="copyAll()">📋 Copy to Clipboard</button>
+    </div>
+    
+    <script>
+        // Update count and status on input
+        document.querySelectorAll('.url-input').forEach(input => {
+            input.addEventListener('input', function() {
+                const row = this.closest('tr');
+                const status = row.querySelector('.status');
+                if (this.value.trim()) {
+                    this.classList.add('filled');
+                    status.textContent = '✅';
+                } else {
+                    this.classList.remove('filled');
+                    status.textContent = '⏳';
+                }
+                updateCount();
+            });
+        });
+        
+        function updateCount() {
+            const filled = document.querySelectorAll('.url-input.filled').length;
+            document.getElementById('filled-count').textContent = filled;
+        }
+        
+        function generateJSON() {
+            const rows = document.querySelectorAll('#items-body tr');
+            const mappings = [];
+            const timestamp = new Date().toISOString();
+            
+            rows.forEach(row => {
+                const itemName = row.dataset.item;
+                const url = row.querySelector('.url-input').value.trim();
+                
+                if (!url) return; // Skip empty
+                
+                // Extract product ID from URL
+                const match = url.match(/\/p\/(\d+)/);
+                const productId = match ? match[1] : "";
+                
+                // Extract display name from URL
+                const urlParts = url.split('/');
+                let displayName = urlParts[urlParts.length - 1] || "";
+                displayName = displayName.replace(/-/g, ' ').replace(/\?.*$/, '').trim();
+                // Title case
+                displayName = displayName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                
+                const cleanUrl = url.split('?')[0];
+                
+                mappings.push(`    "${itemName.toLowerCase()}": {
+      "product_id": "${productId}",
+      "url": "${cleanUrl}",
+      "display_name": "${displayName}",
+      "original_requests": ["${itemName}"],
+      "added": "${timestamp}"
+    }`);
+            });
+            
+            if (mappings.length === 0) {
+                alert('Please fill in at least one product URL!');
+                return;
+            }
+            
+            const json = mappings.join(',\n');
+            document.getElementById('json-output').value = json;
+            document.getElementById('output-section').classList.add('visible');
+            document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function copyAll() {
+            const textarea = document.getElementById('json-output');
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const btn = document.querySelector('.copy-all-btn');
+                btn.textContent = '✓ Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 Copy to Clipboard';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

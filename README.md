@@ -23,7 +23,11 @@ This is a standalone grocery automation toolchain (Google Tasks → Hy-Vee cart)
 3. Run (once implemented):
 
 ```bash
-python -m grocery.run --help
+# Run the full automation
+python -m grocery.run --list-name "Groceries"
+
+# Run in Dry-Run mode (verifies mappings only)
+python -m grocery.run --list-name "Groceries" --dry-run
 ```
 
 ## Data files

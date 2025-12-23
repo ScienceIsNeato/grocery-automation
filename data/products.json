@@ -1,54 +1,524 @@
 {
   "products": {
-    "milk": {
-      "product_id": "",
-      "url": "",
-      "display_name": "Hy-Vee Vitamin D Milk",
-      "original_requests": ["milk", "whole milk"],
-      "added": "2025-12-15T05:16:00",
-      "size": "1 gal",
-      "price": "$5.29"
-    },
-    "bread": {
-      "product_id": "",
-      "url": "",
-      "display_name": "Hy-Vee White Bread",
-      "original_requests": ["bread", "white bread"],
-      "added": "2025-12-15T05:20:00",
-      "size": "20 oz",
-      "price": "$1.99"
-    },
-    "eggs": {
-      "product_id": "",
-      "url": "",
-      "display_name": "Hy-Vee Grade A Large Eggs",
-      "original_requests": ["eggs", "large eggs"],
-      "added": "2025-12-15T05:22:00",
-      "size": "12 ct",
-      "price": "$2.99"
-    },
     "frozen shrimp cocktail": {
       "product_id": "61417",
       "url": "https://www.hy-vee.com/aisles-online/p/61417/Fish-Market-Shrimp-Platter-with-Cocktail-Sauce-2630-Cooked-And-Peeled",
-      "display_name": "Fish Market Shrimp Platter with Cocktail Sauce 2630 Cooked And Peeled",
-      "original_requests": ["frozen shrimp cocktail"],
-      "added": "2025-12-16T06:33:57Z",
-      "size": "",
-      "price": ""
+      "display_name": "Fish Market Shrimp Platter with Cocktail Sauce",
+      "original_requests": [
+        "frozen shrimp cocktail"
+      ],
+      "added": "2025-12-16T06:33:57Z"
     },
     "short carrots": {
       "product_id": "46176",
       "url": "https://www.hy-vee.com/aisles-online/p/46176/Grimmway-Baby-Carrots",
       "display_name": "Grimmway Baby Carrots",
-      "original_requests": ["short carrots"],
-      "added": "2025-12-16T06:34:45Z",
-      "size": "",
-      "price": ""
+      "original_requests": [
+        "short carrots"
+      ],
+      "added": "2025-12-16T06:34:45Z"
+    },
+    "dave's bread whole wheat": {
+      "product_id": "919920",
+      "url": "https://www.hy-vee.com/aisles-online/p/919920/Daves-Killer-Bread-Good-Seed-Whole-Grain-Organic-Bread",
+      "display_name": "Dave's Killer Bread Good Seed Whole Grain Organic Bread",
+      "original_requests": [
+        "dave's bread whole wheat"
+      ],
+      "added": "2025-12-16T07:00:21Z"
+    },
+    "cinnamon rolls ( not jumbo)": {
+      "product_id": "5176",
+      "url": "https://www.hy-vee.com/aisles-online/p/5176/Pillsbury-Original-Icing-Cinnamon-Rolls-8-count",
+      "display_name": "Pillsbury Original Icing Cinnamon Rolls 8 count",
+      "original_requests": [
+        "cinnamon rolls ( not jumbo)"
+      ],
+      "added": "2025-12-16T07:02:40Z"
+    },
+    "one box frozen shrimp alfredo dinner": {
+      "product_id": "3797819",
+      "url": "https://www.hy-vee.com/aisles-online/p/3797819/Lean-Cuisine-Protein-Kick-Shrimp-Alfredo",
+      "display_name": "Lean Cuisine Protein Kick Shrimp Alfredo",
+      "original_requests": [
+        "one box frozen shrimp alfredo dinner"
+      ],
+      "added": "2025-12-16T07:03:34Z"
+    },
+    "watermelon": {
+      "product_id": "73395",
+      "url": "https://www.hy-vee.com/aisles-online/p/73395/Watermelon-Wedges-With-Skin",
+      "display_name": "Watermelon Wedges With Skin",
+      "original_requests": [
+        "watermelon"
+      ],
+      "added": "2025-12-16T07:14:34Z"
+    },
+    "one container sugar-free cool whip": {
+      "product_id": "3347203",
+      "url": "https://www.hy-vee.com/aisles-online/p/3347203/HyVee-Whipped-Topping-Zero-Sugar",
+      "display_name": "Hy-Vee Whipped Topping Zero Sugar",
+      "original_requests": [
+        "one container sugar-free cool whip"
+      ],
+      "added": "2025-12-16T07:14:34Z"
+    },
+    "bananas": {
+      "product_id": "37178",
+      "url": "https://www.hy-vee.com/aisles-online/p/37178/Fresh-Chiquita-Bananas",
+      "display_name": "Fresh Chiquita Bananas",
+      "original_requests": [
+        "bananas",
+        "5 bananas"
+      ],
+      "added": "2025-12-16T07:14:34Z",
+      "default_count": 5
+    },
+    "5 bananas": {
+      "product_id": "37178",
+      "url": "https://www.hy-vee.com/aisles-online/p/37178/Fresh-Chiquita-Bananas",
+      "display_name": "Fresh Chiquita Bananas",
+      "original_requests": [
+        "5 bananas"
+      ],
+      "added": "2025-12-16T08:20:00Z",
+      "default_count": 5
+    },
+    "pack of dish sponges": {
+      "product_id": "6616",
+      "url": "https://www.hy-vee.com/aisles-online/p/6616/ScotchBrite-Heavy-Duty-Scrub-Sponges",
+      "display_name": "Scotch-Brite Heavy Duty Scrub Sponges",
+      "original_requests": [
+        "pack of dish sponges"
+      ],
+      "added": "2025-12-16T07:14:34Z"
+    },
+    "ready-made mashed potatoes (bob evans)": {
+      "product_id": "288172",
+      "url": "https://www.hy-vee.com/aisles-online/p/288172/Bob-Evans-Original-Mashed-Potatoes",
+      "display_name": "Bob Evans Original Mashed Potatoes",
+      "original_requests": [
+        "ready-made mashed potatoes (bob evans)"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "tartar sauce": {
+      "product_id": "3304437",
+      "url": "https://www.hy-vee.com/aisles-online/p/3304437/HyVee-Tartar-Sauce",
+      "display_name": "Hy-Vee Tartar Sauce",
+      "original_requests": [
+        "tartar sauce"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "baked beans (canned)": {
+      "product_id": "24692",
+      "url": "https://www.hy-vee.com/aisles-online/p/24692/HyVee-Maple-Cured-Bacon-Baked-Beans",
+      "display_name": "Hy-Vee Maple Cured Bacon Baked Beans",
+      "original_requests": [
+        "baked beans (canned)"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "taco kit": {
+      "product_id": "50899",
+      "url": "https://www.hy-vee.com/aisles-online/p/50899/Old-El-Paso-Stand-n-Stuff-Taco-Dinner-Kit",
+      "display_name": "Old El Paso Stand n Stuff Taco Dinner Kit",
+      "original_requests": [
+        "taco kit"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "whole wheat egg noodles": {
+      "product_id": "739616",
+      "url": "https://www.hy-vee.com/aisles-online/p/739616/HyVee-Select-Whole-Wheat-Homemade-Noodles",
+      "display_name": "Hy-Vee Select Whole Wheat Homemade Noodles",
+      "original_requests": [
+        "whole wheat egg noodles"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "swedish meatball frozen meal": {
+      "product_id": "3319575",
+      "url": "https://www.hy-vee.com/aisles-online/p/3319575/Marie-Callenders-Swedish-Meatballs-Bowl-Frozen-Meal",
+      "display_name": "Marie Callenders Swedish Meatballs Bowl Frozen Meal",
+      "original_requests": [
+        "swedish meatball frozen meal"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "hungry man meatloaf frozen meal": {
+      "product_id": "276166",
+      "url": "https://www.hy-vee.com/aisles-online/p/276166/Boston-Market-Meatloaf",
+      "display_name": "Boston Market Meatloaf",
+      "original_requests": [
+        "hungry man meatloaf frozen meal"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "frozen pizza": {
+      "product_id": "104387",
+      "url": "https://www.hy-vee.com/aisles-online/p/104387/Brew-Pub-Lotzza-Motzza-Pepperoni-Pizza",
+      "display_name": "Brew Pub Lotzza Motzza Pepperoni Pizza",
+      "original_requests": [
+        "frozen pizza"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "frozen lima beans": {
+      "product_id": "1284544",
+      "url": "https://www.hy-vee.com/aisles-online/p/1284544/HyVee-Baby-Lima-Beans-Fresh-Steam",
+      "display_name": "Hy-Vee Baby Lima Beans Fresh Steam",
+      "original_requests": [
+        "frozen lima beans"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "fresh bass": {
+      "product_id": "737614",
+      "url": "https://www.hy-vee.com/aisles-online/p/737614/Fresh-USA-Farm-Raised-Rainbow-Trout-Fillets",
+      "display_name": "Fresh USA Farm Raised Rainbow Trout Fillets",
+      "original_requests": [
+        "fresh bass"
+      ],
+      "added": "2025-12-16T07:57:02Z",
+      "default_count": 2
+    },
+    "very lean ground beef": {
+      "product_id": "3846371",
+      "url": "https://www.hy-vee.com/aisles-online/p/3846371/93-Lean-7-Fat-Fresh-Ground-Beef",
+      "display_name": "93% Lean 7% Fat Fresh Ground Beef",
+      "original_requests": [
+        "very lean ground beef"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "chuck roast (2-3 lb)": {
+      "product_id": "31930",
+      "url": "https://www.hy-vee.com/aisles-online/p/31930/HyVee-Choice-Reserve-Beef-Bottom-Round-Roast",
+      "display_name": "Hy-Vee Choice Reserve Beef Bottom Round Roast",
+      "original_requests": [
+        "chuck roast (2-3 lb)"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "small bag of yellow onions (maple and bacon variety)": {
+      "product_id": "46166",
+      "url": "https://www.hy-vee.com/aisles-online/p/46166/Yellow-Onions",
+      "display_name": "Yellow Onions",
+      "original_requests": [
+        "small bag of yellow onions (maple and bacon variety)"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "fresh lemon": {
+      "product_id": "3010910",
+      "url": "https://www.hy-vee.com/aisles-online/p/3010910/Kings-River-Lemons-Premium-Citrus",
+      "display_name": "Kings River Lemons Premium Citrus",
+      "original_requests": [
+        "fresh lemon",
+        "1 fresh lemon"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "avocado": {
+      "product_id": "37190",
+      "url": "https://www.hy-vee.com/aisles-online/p/37190/Hass-Avocados",
+      "display_name": "Hass Avocados",
+      "original_requests": [
+        "avocado",
+        "1 avocado"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "tomatoes": {
+      "product_id": "8824",
+      "url": "https://www.hy-vee.com/aisles-online/p/8824/Tomatoes-on-the-Vine",
+      "display_name": "Tomatoes on the Vine",
+      "original_requests": [
+        "tomatoes",
+        "4 tomatoes"
+      ],
+      "added": "2025-12-16T07:57:02Z",
+      "default_count": 4
+    },
+    "shredded lettuce": {
+      "product_id": "59369",
+      "url": "https://www.hy-vee.com/aisles-online/p/59369/Dole-Shredded-Iceberg-Lettuce",
+      "display_name": "Dole Shredded Iceberg Lettuce",
+      "original_requests": [
+        "shredded lettuce"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "healthy orchard grape 2x": {
+      "product_id": "24191",
+      "url": "https://www.hy-vee.com/aisles-online/p/24191/Old-Orchard-Healthy-Balance-Diet-Grape-Juice-Cocktail",
+      "display_name": "Old Orchard Healthy Balance Diet Grape Juice Cocktail",
+      "original_requests": [
+        "healthy orchard grape 2x"
+      ],
+      "added": "2025-12-16T07:57:02Z",
+      "default_count": 2
+    },
+    "saltines": {
+      "product_id": "49696",
+      "url": "https://www.hy-vee.com/aisles-online/p/49696/Premium-Saltine-Crackers-Original",
+      "display_name": "Premium Saltine Crackers Original",
+      "original_requests": [
+        "saltines"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "large chunk chocolate chip coookies": {
+      "product_id": "1620525",
+      "url": "https://www.hy-vee.com/aisles-online/p/1620525/CHIPS-AHOY-Chunky-Chocolate-Chip-Cookies-Family-Size",
+      "display_name": "Chips Ahoy Chunky Chocolate Chip Cookies Family Size",
+      "original_requests": [
+        "large chunk chocolate chip coookies"
+      ],
+      "added": "2025-12-16T07:57:02Z"
+    },
+    "cottage cheese (3x)": {
+      "product_id": "23940",
+      "url": "https://www.hy-vee.com/aisles-online/p/23940/HyVee-4-Small-Curd-Cottage-Cheese",
+      "display_name": "Hy-Vee 4% Small Curd Cottage Cheese",
+      "original_requests": [
+        "cottage cheese (3x)"
+      ],
+      "added": "2025-12-16T08:30:36Z",
+      "default_count": 3
+    },
+    "turkey lunch meat": {
+      "product_id": "17047",
+      "url": "https://www.hy-vee.com/aisles-online/p/17047/Land-OFrost-Premium-Honey-Smoked-Turkey-Breast",
+      "display_name": "Land O'Frost Premium Honey Smoked Turkey Breast",
+      "original_requests": [
+        "turkey lunch meat"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "tropicana lite 50": {
+      "product_id": "3989853",
+      "url": "https://www.hy-vee.com/aisles-online/p/3989853/Tropicana-Light-No-Pulp-Orange-Juice",
+      "display_name": "Tropicana Light No Pulp Orange Juice",
+      "original_requests": [
+        "tropicana lite 50",
+        "Tropicana Lite 50"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "cran 5": {
+      "product_id": "44848",
+      "url": "https://www.hy-vee.com/aisles-online/p/44848/Ocean-Spray-Diet-Cranberry-Juice-Drink",
+      "display_name": "Ocean Spray Diet Cranberry Juice Drink",
+      "original_requests": [
+        "cran 5"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "baja blast zero": {
+      "product_id": "2797011",
+      "url": "https://www.hy-vee.com/aisles-online/p/2797011/Mountain-Dew-Zero-Sugar-Baja-Blast-12-Pack",
+      "display_name": "Mountain Dew Zero Sugar Baja Blast 12 Pack",
+      "original_requests": [
+        "baja blast zero"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "lemonaide": {
+      "product_id": "3038371",
+      "url": "https://www.hy-vee.com/aisles-online/p/3038371/Minute-Maid-Sugar-Lemonade-Juice",
+      "display_name": "Minute Maid Sugar Lemonade Juice",
+      "original_requests": [
+        "lemonaide",
+        "lemonade"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "fruit pop tarts": {
+      "product_id": "4032624",
+      "url": "https://www.hy-vee.com/aisles-online/p/4032624/HyVee-Frosted-Toaster-Pastries-Variety-Pack-StrawberryBlueberryCherry-12Ct",
+      "display_name": "Hy-Vee Frosted Toaster Pastries Variety Pack 12Ct",
+      "original_requests": [
+        "fruit pop tarts"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "lightly salted chips": {
+      "product_id": "1594886",
+      "url": "https://www.hy-vee.com/aisles-online/p/1594886/Lays-Lightly-Salted-Classic-Potato-Chips",
+      "display_name": "Lay's Lightly Salted Classic Potato Chips",
+      "original_requests": [
+        "lightly salted chips"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },
+    "honeydew": {
+      "product_id": "545825",
+      "url": "https://www.hy-vee.com/aisles-online/p/545825/Honeydew-Ready-To-Eat",
+      "display_name": "Honeydew Ready To Eat",
+      "original_requests": [
+        "honeydew"
+      ],
+      "added": "2025-12-16T08:30:36Z"
+    },    
+    "cream of mushroom soup": {
+      "product_id": "16479",
+      "url": "https://www.hy-vee.com/aisles-online/p/16479/Campbells-25-Less-Sodium-Cream-of-Mushroom-Condensed-Soup",
+      "display_name": "Campbells 25 Less Sodium Cream Of Mushroom Condensed Soup",
+      "original_requests": ["cream of mushroom soup"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "whole weat egg noodles": {
+      "product_id": "739616",
+      "url": "https://www.hy-vee.com/aisles-online/p/739616/HyVee-Select-Whole-Wheat-Homemade-Noodles",
+      "display_name": "Hyvee Select Whole Wheat Homemade Noodles",
+      "original_requests": ["whole weat egg noodles"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "whole frozen quiche": {
+      "product_id": "1923545",
+      "url": "https://www.hy-vee.com/aisles-online/p/1923545/La-Terra-Fina-Spinach-And-Artichoke-Quiche",
+      "display_name": "La Terra Fina Spinach And Artichoke Quiche",
+      "original_requests": ["whole frozen quiche"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "shredded cheddar cheese": {
+      "product_id": "23859",
+      "url": "https://www.hy-vee.com/aisles-online/p/23859/HyVee-Finely-Shredded-Mild-Cheddar-Natural-Cheese",
+      "display_name": "Hyvee Finely Shredded Mild Cheddar Natural Cheese",
+      "original_requests": ["shredded cheddar cheese"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "half and half": {
+      "product_id": "",
+      "url": "https://www.hy-vee.com/aisles-online/search",
+      "display_name": "Search",
+      "original_requests": ["half and half"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "fresh thyme": {
+      "product_id": "1905714",
+      "url": "https://www.hy-vee.com/aisles-online/p/1905714/Ernessi-Farms-Thyme",
+      "display_name": "Ernessi Farms Thyme",
+      "original_requests": ["fresh thyme"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "garlic": {
+      "product_id": "8812",
+      "url": "https://www.hy-vee.com/aisles-online/p/8812/Jumbo-Garlic",
+      "display_name": "Jumbo Garlic",
+      "original_requests": ["garlic"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "bag of potatoes": {
+      "product_id": "66372",
+      "url": "https://www.hy-vee.com/aisles-online/p/66372/Green-Giant-Red-Potatoes",
+      "display_name": "Green Giant Red Potatoes",
+      "original_requests": ["bag of potatoes"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "chicken thigs": {
+      "product_id": "306862",
+      "url": "https://www.hy-vee.com/aisles-online/p/306862/HyVee-True-All-Natural-Cage-Free-Boneless-Skinless-Chicken-Thigh-Meat",
+      "display_name": "Hyvee True All Natural Cage Free Boneless Skinless Chicken Thigh Meat",
+      "original_requests": ["chicken thigs"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "cocktail shrimp": {
+      "product_id": "61417",
+      "url": "https://www.hy-vee.com/aisles-online/p/61417/Fish-Market-Shrimp-Platter-with-Cocktail-Sauce-2630-Cooked-And-Peeled",
+      "display_name": "Fish Market Shrimp Platter With Cocktail Sauce 2630 Cooked And Peeled",
+      "original_requests": ["cocktail shrimp"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "pickled herring": {
+      "product_id": "28255",
+      "url": "https://www.hy-vee.com/aisles-online/p/28255/Fish-Market-Herring-Fillets-in-Wine-Sauce",
+      "display_name": "Fish Market Herring Fillets In Wine Sauce",
+      "original_requests": ["pickled herring"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "asian salad kit": {
+      "product_id": "766526",
+      "url": "https://www.hy-vee.com/aisles-online/p/766526/Dole-Chopped-Sesame-Asian",
+      "display_name": "Dole Chopped Sesame Asian",
+      "original_requests": ["asian salad kit"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "stuffing mix": {
+      "product_id": "2972321",
+      "url": "https://www.hy-vee.com/aisles-online/p/2972321/Pepperidge-Farm-Herb-Seasoned-Classic-Stuffing",
+      "display_name": "Pepperidge Farm Herb Seasoned Classic Stuffing",
+      "original_requests": ["stuffing mix"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "orange": {
+      "product_id": "37179",
+      "url": "https://www.hy-vee.com/aisles-online/p/37179/Navel-Oranges-Large",
+      "display_name": "Navel Oranges Large",
+      "original_requests": ["orange"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "frozen shrimp alfredo": {
+      "product_id": "3797819",
+      "url": "https://www.hy-vee.com/aisles-online/p/3797819/Lean-Cuisine-Protein-Kick-Shrimp-Alfredo",
+      "display_name": "Lean Cuisine Protein Kick Shrimp Alfredo",
+      "original_requests": ["frozen shrimp alfredo"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "frozen sweedish meatballs": {
+      "product_id": "3821815",
+      "url": "https://www.hy-vee.com/aisles-online/p/3821815/Boston-Market-Swedish-Meatballs-Swedish-Meatballs-131-oz",
+      "display_name": "Boston Market Swedish Meatballs Swedish Meatballs 131 Oz",
+      "original_requests": ["frozen sweedish meatballs"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "froxen spagheet and meat sauce dinner": {
+      "product_id": "3017",
+      "url": "https://www.hy-vee.com/aisles-online/p/3017/Stouffers-Spaghetti-with-Meat-Sauce-Frozen-Meal",
+      "display_name": "Stouffers Spaghetti With Meat Sauce Frozen Meal",
+      "original_requests": ["froxen spagheet and meat sauce dinner"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "yasso bars 2x chocolate fudge": {
+      "product_id": "2711584",
+      "url": "https://www.hy-vee.com/aisles-online/p/2711584/Yasso-Chocolate-Fudge-Frozen-Greek-Yogurt-Bars-4-35-Fl-Oz",
+      "display_name": "Yasso Chocolate Fudge Frozen Greek Yogurt Bars 4 35 Fl Oz",
+      "original_requests": ["yasso bars 2x chocolate fudge"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "yasso bars 2x cherry chocolate crunch": {
+      "product_id": "4047435",
+      "url": "https://www.hy-vee.com/aisles-online/p/4047435/Yasso-Frozen-Greek-Yogurt-Cherry-Chocolate-Crunch-Bars-4Ct",
+      "display_name": "Yasso Frozen Greek Yogurt Cherry Chocolate Crunch Bars 4ct",
+      "original_requests": ["yasso bars 2x cherry chocolate crunch"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "yasso bars 2x cookie dough": {
+      "product_id": "2121676",
+      "url": "https://www.hy-vee.com/aisles-online/p/2121676/Yasso-Chocolate-Chip-Cookie-Dough-Frozen-Greek-Yogurt-Bars-435-Fl-Oz",
+      "display_name": "Yasso Chocolate Chip Cookie Dough Frozen Greek Yogurt Bars 435 Fl Oz",
+      "original_requests": ["yasso bars 2x cookie dough"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "cinnamon rolls parentheses in tubes)": {
+      "product_id": "5176",
+      "url": "https://www.hy-vee.com/aisles-online/p/5176/Pillsbury-Original-Icing-Cinnamon-Rolls-8-count",
+      "display_name": "Pillsbury Original Icing Cinnamon Rolls 8 Count",
+      "original_requests": ["cinnamon rolls parentheses in tubes)"],
+      "added": "2025-12-23T09:50:41.840Z"
+    },
+    "lightly salted potato chips": {
+      "product_id": "1594886",
+      "url": "https://www.hy-vee.com/aisles-online/p/1594886/Lays-Lightly-Salted-Classic-Potato-Chips",
+      "display_name": "Lays Lightly Salted Classic Potato Chips",
+      "original_requests": ["lightly salted potato chips"],
+      "added": "2025-12-23T09:50:41.840Z"
     }
   },
   "version": "1.0",
-  "last_updated": "2025-12-16T06:34:45Z",
+  "last_updated": "2025-12-16T08:30:36Z",
   "notes": "Product library for Hy-Vee automation"
 }
-
-
