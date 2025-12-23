@@ -177,12 +177,19 @@ def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
         safe_item = item.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         js_item = item.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
         rows.append(f'''
-        <tr data-item="{js_item}">
+        <tr data-item="{js_item}" data-status="pending">
             <td class="row-num">{i+1}</td>
             <td class="item-name">{safe_item}</td>
-            <td><a href="{search_url}" target="_blank" class="search-link">🔍 Search</a></td>
-            <td><input type="text" class="url-input" placeholder="Paste product URL..." /></td>
-            <td class="status">⏳</td>
+            <td><a href="{search_url}" target="_blank" class="search-link">🔍</a></td>
+            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
+            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
+            <td class="preview-cell"><div class="preview"></div></td>
+            <td class="actions">
+                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
+                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
+                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
+            </td>
+            <td class="status-cell">⏳</td>
         </tr>''')
     
     html = f'''<!DOCTYPE html>
@@ -190,144 +197,221 @@ def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unmapped Grocery Items</title>
+    <title>Product Mapping Tool</title>
     <style>
         * {{ box-sizing: border-box; }}
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
-            background: #1a1a2e;
-            color: #eee;
+            padding: 15px;
+            background: #0d1117;
+            color: #c9d1d9;
+            font-size: 14px;
         }}
-        h1 {{ color: #4CAF50; margin-bottom: 5px; }}
-        .timestamp {{ color: #888; font-size: 14px; margin-bottom: 20px; }}
-        .instructions {{
-            background: #16213e;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4CAF50;
+        .header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }}
-        .instructions ol {{ margin: 10px 0 0 0; padding-left: 20px; }}
-        .instructions li {{ margin: 6px 0; color: #bbb; }}
+        h1 {{ color: #58a6ff; margin: 0; font-size: 24px; }}
+        .source-badge {{
+            background: #238636;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }}
+        .store-badge {{
+            background: #da3633;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 8px;
+        }}
+        .stats {{
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }}
+        .stat {{ color: #8b949e; }}
+        .stat strong {{ color: #58a6ff; }}
         table {{
             width: 100%;
             border-collapse: collapse;
-            background: #16213e;
-            border-radius: 8px;
+            background: #161b22;
+            border-radius: 6px;
             overflow: hidden;
-        }}
-        th, td {{
-            padding: 10px 12px;
-            text-align: left;
-            border-bottom: 1px solid #2a2a4a;
-        }}
-        th {{
-            background: #0f3460;
-            color: #4CAF50;
-            font-weight: 600;
             font-size: 13px;
         }}
-        tr:hover {{ background: #1f2f50; }}
-        .row-num {{ color: #666; width: 30px; }}
-        .item-name {{ font-weight: 500; max-width: 250px; }}
+        th, td {{
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #21262d;
+        }}
+        th {{
+            background: #21262d;
+            color: #8b949e;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+        }}
+        tr:hover {{ background: #1c2128; }}
+        tr.skipped {{ opacity: 0.4; }}
+        tr.skipped td {{ text-decoration: line-through; }}
+        tr.mapped {{ background: #0d2818; }}
+        tr.amazon {{ background: #2d1b0e; }}
+        tr.dupe {{ background: #1e1232; }}
+        .row-num {{ color: #484f58; width: 25px; }}
+        .item-name {{ font-weight: 500; max-width: 180px; word-break: break-word; }}
         .search-link {{
             display: inline-block;
-            padding: 5px 10px;
-            background: #2196F3;
+            padding: 4px 8px;
+            background: #388bfd;
             color: white;
             text-decoration: none;
             border-radius: 4px;
-            font-size: 13px;
         }}
-        .search-link:hover {{ background: #1976D2; }}
+        .search-link:hover {{ background: #58a6ff; }}
+        .url-cell {{ width: 280px; }}
         .url-input {{
             width: 100%;
-            padding: 8px;
-            border: 1px solid #3a3a5a;
+            padding: 6px 8px;
+            border: 1px solid #30363d;
             border-radius: 4px;
-            font-size: 13px;
-            background: #0a0a1a;
-            color: #eee;
+            font-size: 12px;
+            background: #0d1117;
+            color: #c9d1d9;
         }}
-        .url-input:focus {{ border-color: #4CAF50; outline: none; }}
-        .url-input.filled {{ border-color: #4CAF50; background: #0a2a1a; }}
-        .status {{ width: 30px; font-size: 18px; }}
+        .url-input:focus {{ border-color: #58a6ff; outline: none; }}
+        .url-input.filled {{ border-color: #238636; background: #0d2818; }}
+        .qty-cell {{ width: 50px; }}
+        .qty-input {{
+            width: 50px;
+            padding: 6px 4px;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #0d1117;
+            color: #c9d1d9;
+            text-align: center;
+        }}
+        .qty-input:focus {{ border-color: #58a6ff; outline: none; }}
+        .preview-cell {{ width: 60px; }}
+        .preview {{
+            width: 50px;
+            height: 50px;
+            background: #21262d;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }}
+        .preview img {{
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }}
+        .actions {{
+            white-space: nowrap;
+        }}
+        .actions button {{
+            padding: 4px 6px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #21262d;
+        }}
+        .actions button:hover {{ background: #30363d; }}
+        .actions button.active {{ background: #388bfd; }}
+        .status-cell {{ width: 30px; font-size: 16px; text-align: center; }}
         .action-bar {{
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
             align-items: center;
         }}
         .submit-btn {{
-            padding: 12px 24px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-        }}
-        .submit-btn:hover {{ background: #45a049; }}
-        .submit-btn:disabled {{ background: #555; cursor: not-allowed; }}
-        .count {{ color: #888; font-size: 14px; }}
-        .output-section {{
-            margin-top: 20px;
-            display: none;
-        }}
-        .output-section.visible {{ display: block; }}
-        .output-section h3 {{ color: #4CAF50; margin-bottom: 10px; }}
-        .json-output {{
-            width: 100%;
-            height: 300px;
-            background: #0a0a1a;
-            border: 1px solid #3a3a5a;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 12px;
-            color: #9cdcfe;
-            resize: vertical;
-        }}
-        .copy-all-btn {{
-            margin-top: 10px;
             padding: 10px 20px;
-            background: #FF9800;
+            background: #238636;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
         }}
-        .copy-all-btn:hover {{ background: #F57C00; }}
-        .copy-all-btn.copied {{ background: #4CAF50; }}
+        .submit-btn:hover {{ background: #2ea043; }}
+        .output-section {{
+            margin-top: 15px;
+            display: none;
+        }}
+        .output-section.visible {{ display: block; }}
+        .output-section h3 {{ color: #238636; margin-bottom: 10px; font-size: 16px; }}
+        .json-output {{
+            width: 100%;
+            height: 200px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px;
+            color: #7ee787;
+            resize: vertical;
+        }}
+        .copy-btn {{
+            margin-top: 8px;
+            padding: 8px 16px;
+            background: #da3633;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }}
+        .copy-btn:hover {{ background: #f85149; }}
+        .amazon-output, .skip-output {{
+            margin-top: 10px;
+            padding: 10px;
+            background: #161b22;
+            border-radius: 6px;
+            font-size: 12px;
+        }}
+        .amazon-output h4, .skip-output h4 {{ margin: 0 0 8px 0; color: #d29922; }}
     </style>
 </head>
 <body>
-    <h1>🛒 Unmapped Items ({len(unmapped)})</h1>
-    <p class="timestamp">Generated: {timestamp}</p>
+    <div class="header">
+        <h1>🛒 Product Mapping Tool</h1>
+        <div>
+            <span class="source-badge">📋 Google Tasks</span>
+            <span class="store-badge">🏪 Hy-Vee</span>
+        </div>
+    </div>
     
-    <div class="instructions">
-        <strong>Workflow:</strong>
-        <ol>
-            <li>Click "🔍 Search" to find each product on Hy-Vee</li>
-            <li>Copy the product page URL and paste it in the input field</li>
-            <li>Repeat for all items (or skip items you don't want)</li>
-            <li>Click <strong>"Generate JSON"</strong> to create all mappings at once</li>
-            <li>Copy and paste the JSON into <code>data/products.json</code></li>
-        </ol>
+    <div class="stats">
+        <span class="stat">Total: <strong>{len(unmapped)}</strong></span>
+        <span class="stat">Mapped: <strong id="mapped-count">0</strong></span>
+        <span class="stat">Skipped: <strong id="skipped-count">0</strong></span>
+        <span class="stat">Amazon: <strong id="amazon-count">0</strong></span>
+        <span class="stat">Dupes: <strong id="dupe-count">0</strong></span>
     </div>
     
     <table>
         <thead>
             <tr>
                 <th>#</th>
-                <th>Item Name</th>
-                <th>Search</th>
+                <th>Item</th>
+                <th>🔍</th>
                 <th>Product URL</th>
+                <th>Qty</th>
+                <th>Preview</th>
+                <th>Actions</th>
                 <th></th>
             </tr>
         </thead>
@@ -337,93 +421,193 @@ def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
     </table>
     
     <div class="action-bar">
-        <button class="submit-btn" onclick="generateJSON()">📦 Generate JSON</button>
-        <span class="count"><span id="filled-count">0</span> / {len(unmapped)} filled</span>
+        <button class="submit-btn" onclick="generateJSON()">📦 Generate All JSON</button>
     </div>
     
     <div class="output-section" id="output-section">
-        <h3>✅ Generated JSON (paste into products.json)</h3>
+        <h3>✅ Product Mappings (paste into products.json)</h3>
         <textarea class="json-output" id="json-output" readonly></textarea>
-        <button class="copy-all-btn" onclick="copyAll()">📋 Copy to Clipboard</button>
+        <button class="copy-btn" onclick="copyJSON()">📋 Copy to Clipboard</button>
+        
+        <div class="amazon-output" id="amazon-output" style="display:none">
+            <h4>📦 Items to move to Amazon list:</h4>
+            <div id="amazon-list"></div>
+        </div>
+        
+        <div class="dupe-output" id="dupe-output" style="display:none">
+            <h4>🔁 Duplicate items (will be removed from Google Tasks):</h4>
+            <div id="dupe-list"></div>
+            <div style="margin-top:8px;">
+                <code id="dupe-cmd" style="display:block;background:#0d1117;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;white-space:nowrap;"></code>
+                <button class="copy-btn" onclick="copyDupeCmd()" style="margin-top:4px;">📋 Copy Remove Command</button>
+            </div>
+        </div>
+        
+        <div class="skip-output" id="skip-output" style="display:none">
+            <h4>⏭️ Skipped items:</h4>
+            <div id="skip-list"></div>
+        </div>
     </div>
     
     <script>
-        // Update count and status on input
+        // Update preview when URL is pasted
         document.querySelectorAll('.url-input').forEach(input => {{
             input.addEventListener('input', function() {{
                 const row = this.closest('tr');
-                const status = row.querySelector('.status');
-                if (this.value.trim()) {{
+                const preview = row.querySelector('.preview');
+                const status = row.querySelector('.status-cell');
+                const url = this.value.trim();
+                
+                if (url && url.includes('/p/')) {{
                     this.classList.add('filled');
+                    row.dataset.status = 'mapped';
+                    row.classList.add('mapped');
                     status.textContent = '✅';
+                    
+                    // Extract product ID and build image URL
+                    const match = url.match(/\\/p\\/(\\d+)/);
+                    if (match) {{
+                        const pid = match[1];
+                        // Hy-Vee CDN pattern
+                        const imgUrl = `https://d2d8wwwkmhfcva.cloudfront.net/100x/d2lnr5mha7bycj.cloudfront.net/product-image/file/${{pid}}.png`;
+                        preview.innerHTML = `<img src="${{imgUrl}}" onerror="this.style.display='none'" />`;
+                    }}
                 }} else {{
                     this.classList.remove('filled');
+                    row.classList.remove('mapped');
+                    row.dataset.status = 'pending';
                     status.textContent = '⏳';
+                    preview.innerHTML = '';
                 }}
-                updateCount();
+                updateCounts();
             }});
         }});
         
-        function updateCount() {{
-            const filled = document.querySelectorAll('.url-input.filled').length;
-            document.getElementById('filled-count').textContent = filled;
+        function markSkip(btn) {{
+            const row = btn.closest('tr');
+            toggleStatus(row, 'skipped', btn);
+        }}
+        
+        function markDupe(btn) {{
+            const row = btn.closest('tr');
+            toggleStatus(row, 'dupe', btn);
+        }}
+        
+        function markAmazon(btn) {{
+            const row = btn.closest('tr');
+            toggleStatus(row, 'amazon', btn);
+        }}
+        
+        function toggleStatus(row, status, btn) {{
+            const wasActive = row.dataset.status === status;
+            
+            // Clear all statuses
+            row.classList.remove('skipped', 'dupe', 'amazon', 'mapped');
+            row.querySelectorAll('.actions button').forEach(b => b.classList.remove('active'));
+            
+            if (wasActive) {{
+                row.dataset.status = 'pending';
+                row.querySelector('.status-cell').textContent = '⏳';
+            }} else {{
+                row.dataset.status = status;
+                btn.classList.add('active');
+                row.classList.add(status);
+                const icons = {{ skipped: '⏭️', dupe: '🔁', amazon: '📦' }};
+                row.querySelector('.status-cell').textContent = icons[status];
+            }}
+            updateCounts();
+        }}
+        
+        function updateCounts() {{
+            document.getElementById('mapped-count').textContent = document.querySelectorAll('tr[data-status="mapped"]').length;
+            document.getElementById('skipped-count').textContent = document.querySelectorAll('tr[data-status="skipped"]').length;
+            document.getElementById('amazon-count').textContent = document.querySelectorAll('tr[data-status="amazon"]').length;
+            document.getElementById('dupe-count').textContent = document.querySelectorAll('tr[data-status="dupe"]').length;
         }}
         
         function generateJSON() {{
             const rows = document.querySelectorAll('#items-body tr');
             const mappings = [];
+            const amazonItems = [];
+            const dupeItems = [];
+            const skipItems = [];
             const timestamp = new Date().toISOString();
             
             rows.forEach(row => {{
                 const itemName = row.dataset.item;
+                const status = row.dataset.status;
                 const url = row.querySelector('.url-input').value.trim();
+                const qty = parseInt(row.querySelector('.qty-input').value) || 1;
                 
-                if (!url) return; // Skip empty
+                if (status === 'amazon') {{
+                    amazonItems.push(itemName);
+                    return;
+                }}
+                if (status === 'dupe') {{
+                    dupeItems.push(itemName);
+                    return;
+                }}
+                if (status === 'skipped') {{
+                    skipItems.push(itemName);
+                    return;
+                }}
+                if (!url || !url.includes('/p/')) return;
                 
-                // Extract product ID from URL
                 const match = url.match(/\\/p\\/(\\d+)/);
                 const productId = match ? match[1] : "";
                 
-                // Extract display name from URL
                 const urlParts = url.split('/');
                 let displayName = urlParts[urlParts.length - 1] || "";
                 displayName = displayName.replace(/-/g, ' ').replace(/\\?.*$/, '').trim();
-                // Title case
                 displayName = displayName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
                 
-                const cleanUrl = url.split('?')[0];
-                
+                const qtyField = qty > 1 ? `\\n      "quantity": ${{qty}},` : "";
                 mappings.push(`    "${{itemName.toLowerCase()}}": {{
       "product_id": "${{productId}}",
-      "url": "${{cleanUrl}}",
-      "display_name": "${{displayName}}",
+      "url": "${{url.split('?')[0]}}",
+      "display_name": "${{displayName}}",${{qtyField}}
       "original_requests": ["${{itemName}}"],
       "added": "${{timestamp}}"
     }}`);
             }});
             
-            if (mappings.length === 0) {{
-                alert('Please fill in at least one product URL!');
-                return;
+            document.getElementById('json-output').value = mappings.join(',\\n') || '// No items mapped';
+            document.getElementById('output-section').classList.add('visible');
+            
+            if (amazonItems.length > 0) {{
+                document.getElementById('amazon-output').style.display = 'block';
+                document.getElementById('amazon-list').textContent = amazonItems.join('\\n');
+            }}
+            if (dupeItems.length > 0) {{
+                document.getElementById('dupe-output').style.display = 'block';
+                document.getElementById('dupe-list').textContent = dupeItems.join('\\n');
+                // Generate remove command
+                const removeArgs = dupeItems.map(i => `--remove-item "${{i}}"`).join(' ');
+                const cmd = `python -m grocery.run --list-name "Groceries" ${{removeArgs}}`;
+                document.getElementById('dupe-cmd').textContent = cmd;
+            }}
+            if (skipItems.length > 0) {{
+                document.getElementById('skip-output').style.display = 'block';
+                document.getElementById('skip-list').textContent = skipItems.join('\\n');
             }}
             
-            const json = mappings.join(',\\n');
-            document.getElementById('json-output').value = json;
-            document.getElementById('output-section').classList.add('visible');
             document.getElementById('output-section').scrollIntoView({{ behavior: 'smooth' }});
         }}
         
-        function copyAll() {{
+        function copyJSON() {{
             const textarea = document.getElementById('json-output');
-            textarea.select();
             navigator.clipboard.writeText(textarea.value).then(() => {{
-                const btn = document.querySelector('.copy-all-btn');
+                const btn = document.querySelector('.copy-btn');
                 btn.textContent = '✓ Copied!';
-                btn.classList.add('copied');
-                setTimeout(() => {{
-                    btn.textContent = '📋 Copy to Clipboard';
-                    btn.classList.remove('copied');
-                }}, 2000);
+                setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
+            }});
+        }}
+        
+        function copyDupeCmd() {{
+            const cmd = document.getElementById('dupe-cmd').textContent;
+            navigator.clipboard.writeText(cmd).then(() => {{
+                event.target.textContent = '✓ Copied!';
+                setTimeout(() => event.target.textContent = '📋 Copy Remove Command', 2000);
             }});
         }}
     </script>
@@ -432,8 +616,6 @@ def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
     
     output_file.write_text(html, encoding="utf-8")
     return output_file
-
-
 def _dump_debug_info(page: "Any", error: Exception) -> None:
     """Dump screenshot, HTML, and URL to /tmp/hyvee_debug/ for debugging."""
     import traceback
