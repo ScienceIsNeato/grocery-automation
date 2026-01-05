@@ -9,7 +9,6 @@ def test_run_non_dry_run_wires_hyvee_orchestration(monkeypatch, tmp_path: Path, 
         json.dumps({"products": {"milk": {"display_name": "Hy-Vee Vitamin D Milk"}}}),
         encoding="utf-8",
     )
-    (repo_root / "data" / "substitutions.json").write_text(json.dumps({"corrections": {}, "defaults": {}}), encoding="utf-8")
 
     from grocery import run
 
@@ -46,8 +45,6 @@ def test_run_non_dry_run_wires_hyvee_orchestration(monkeypatch, tmp_path: Path, 
             str(repo_root),
             "--products",
             str(repo_root / "data" / "products.json"),
-            "--substitutions",
-            str(repo_root / "data" / "substitutions.json"),
         ],
         raising=False,
     )

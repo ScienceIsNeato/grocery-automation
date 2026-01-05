@@ -171,7 +171,7 @@ _LEADING_QTY_RE = re.compile(r"^\s*(\d+)\s+(.*)$")
 _DOZEN_RE = re.compile(r"^\s*(?:(\d+)\s+)?dozen\s+(.*)$", re.IGNORECASE)
 
 
-def normalize(*, items: list[str], substitutions: dict) -> list[dict]:
+def normalize(*, items: list[str]) -> list[dict]:
     """
     Normalize raw task titles to structured items.
 
@@ -181,12 +181,10 @@ def normalize(*, items: list[str], substitutions: dict) -> list[dict]:
       - "2 bananas" => qty=2, text="bananas"
       - "2 dozen eggs" => qty=24, text="eggs"
       - "dozen eggs" => qty=12, text="eggs"
-    - lowercase for matching corrections/defaults
-    - corrections/defaults are exact-match keys
+    - lowercase for matching
+    
+    Product matching is handled by products.json lookup (checks original_requests arrays).
     """
-    corrections = substitutions.get("corrections", {}) or {}
-    defaults = substitutions.get("defaults", {}) or {}
-
     out: list[dict] = []
     for raw in items:
         if raw is None:
@@ -211,18 +209,7 @@ def normalize(*, items: list[str], substitutions: dict) -> list[dict]:
                 qty = int(m.group(1))
                 s = m.group(2).strip()
 
-        lookup_key = s.lower().strip()
-
-        # Apply corrections first (exact match).
-        corrected = corrections.get(lookup_key)
-        if corrected is not None:
-            normalized = corrected
-        else:
-            normalized = lookup_key
-
-        # Apply defaults (exact match on current normalized key).
-        normalized = defaults.get(str(normalized).lower().strip(), normalized)
-
+        normalized = s.lower().strip()
         out.append({"original": original, "normalized": normalized, "quantity": qty})
 
     return out

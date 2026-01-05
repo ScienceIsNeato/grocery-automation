@@ -17,6 +17,47 @@ from grocery.tools.hyvee import build_search_url
 from grocery.tools import hyvee
 
 
+def regenerate_fuzzy_html(
+    repo_root: Path,
+    list_name: str,
+    products_path: Path,
+) -> Path | None:
+    """
+    Regenerate fuzzy match HTML after products.json is updated.
+    
+    Uses products.json as single source of truth (checks original_requests arrays).
+    
+    Returns path to HTML file if unmapped items exist, None otherwise.
+    """
+    raw_titles = gtasks.fetch_open_task_titles(repo_root=repo_root, list_name=list_name)
+    normalized = gtasks.normalize(items=raw_titles)
+    normalized_names = [x["normalized"] for x in normalized]
+    
+    # verify_all_mapped now checks original_requests arrays in products.json
+    _, unmapped_names = library.verify_all_mapped(products_path, normalized_names)
+    if not unmapped_names:
+        return None
+    
+    # Build rich unmapped items (with quantities from normalize())
+    # Deduplicate by normalized name, combining quantities
+    unmapped_dict = {}
+    for norm in normalized:
+        if norm["normalized"] in unmapped_names:
+            key = norm["normalized"]
+            if key in unmapped_dict:
+                # Combine quantities and keep the first original name
+                unmapped_dict[key]["quantity"] += norm["quantity"]
+            else:
+                unmapped_dict[key] = {
+                    "original": norm["original"],
+                    "normalized": norm["normalized"],
+                    "quantity": norm["quantity"],
+                }
+    unmapped_items = list(unmapped_dict.values())
+    
+    return fuzzy_ui.generate_fuzzy_match_html(unmapped_items, products_path, repo_root)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="grocery-run")
     parser.add_argument("--list-name", required=True, help="Google Tasks list name (e.g., Groceries)")
@@ -48,11 +89,6 @@ def main() -> int:
         help="Path to products.json",
     )
     parser.add_argument(
-        "--substitutions",
-        default=str(Path(__file__).resolve().parents[2] / "data" / "substitutions.json"),
-        help="Path to substitutions.json",
-    )
-    parser.add_argument(
         "--unavailable",
         default=str(Path(__file__).resolve().parents[2] / "data" / "unavailable.json"),
         help="Path to unavailable.json log",
@@ -67,7 +103,6 @@ def main() -> int:
 
     repo_root = Path(args.repo_root)
     products_path = Path(args.products)
-    substitutions_path = Path(args.substitutions)
     unavailable_path = Path(args.unavailable)
 
     try:
@@ -99,25 +134,35 @@ def main() -> int:
             return 0
 
         raw_titles = gtasks.fetch_open_task_titles(repo_root=repo_root, list_name=args.list_name)
-        subs = json.loads(substitutions_path.read_text(encoding="utf-8"))
-        normalized = gtasks.normalize(items=raw_titles, substitutions=subs)
+        normalized = gtasks.normalize(items=raw_titles)
         normalized_names = [x["normalized"] for x in normalized]
 
         _, unmapped_names = library.verify_all_mapped(products_path, normalized_names)
         if unmapped_names:
             # Build rich unmapped items (with quantities from normalize())
-            unmapped_items = []
+            # Deduplicate by normalized name, combining quantities
+            unmapped_dict = {}
             for norm in normalized:
                 if norm["normalized"] in unmapped_names:
-                    unmapped_items.append({
-                        "original": norm["original"],
-                        "normalized": norm["normalized"],
-                        "quantity": norm["quantity"],
-                    })
+                    key = norm["normalized"]
+                    if key in unmapped_dict:
+                        # Combine quantities and keep the first original name
+                        unmapped_dict[key]["quantity"] += norm["quantity"]
+                    else:
+                        unmapped_dict[key] = {
+                            "original": norm["original"],
+                            "normalized": norm["normalized"],
+                            "quantity": norm["quantity"],
+                        }
+            unmapped_items = list(unmapped_dict.values())
             
             if not args.skip_fuzzy:
                 # Phase 1: Fuzzy match against existing products (avoids unnecessary Hy-Vee searches)
-                fuzzy_html = fuzzy_ui.generate_fuzzy_match_html(unmapped_items, products_path, repo_root)
+                fuzzy_html = fuzzy_ui.generate_fuzzy_match_html(unmapped_items, products_path, repo_root, list_name=args.list_name)
+                
+                # Also generate Hy-Vee search HTML for navigation
+                if unmapped_items:
+                    _generate_unmapped_html(unmapped_items, repo_root, list_name=args.list_name)
                 
                 print(f"\n{'='*60}")
                 print(f"STEP 1: FUZZY MATCH EXISTING PRODUCTS")
@@ -137,11 +182,10 @@ def main() -> int:
                 print(f"  2. Review fuzzy matches (top 3 shown) and click to map")
                 print(f"  3. Or browse full product list, or mark as 'NEW'")
                 print(f"  4. Click 'Update List Details' button")
-                print(f"  5. Download and run the generated script")
                 print(f"\n  The script will:")
-                print(f"    - Write substitutions to data/substitutions.json")
+                print(f"    - Add variations to products.json original_requests")
                 print(f"    - Rename edited tasks in Google Tasks")
-                print(f"    - Re-run orchestrator automatically")
+                print(f"    - Refresh the page automatically")
                 print(f"\n  Items marked 'NEW' will be shown in Hy-Vee search UI next.")
                 print(f"  (Or re-run with --skip-fuzzy to go straight to Hy-Vee search)")
                 print(f"{'='*60}\n")
@@ -155,7 +199,7 @@ def main() -> int:
                 return 1
             else:
                 # Phase 2: Hy-Vee product search for truly new items
-                unmapped_html = _generate_unmapped_html(unmapped_items, repo_root)
+                unmapped_html = _generate_unmapped_html(unmapped_items, repo_root, list_name=args.list_name)
                 
                 print(f"\n{'='*60}")
                 print(f"STEP 2: HY-VEE PRODUCT SEARCH")
@@ -215,7 +259,7 @@ def main() -> int:
         return e.code
 
 
-def _generate_unmapped_html(unmapped: list[dict], repo_root: Path) -> Path:
+def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: str = "Groceries") -> Path:
     """Generate an HTML file with clickable search links for unmapped items.
     
     Args:
@@ -283,6 +327,34 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path) -> Path:
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
+            cursor: default;
+        }}
+        .phase-nav {{
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }}
+        .phase-btn {{
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }}
+        .phase-btn.active {{
+            background: #238636;
+            color: white;
+        }}
+        .phase-btn.inactive {{
+            background: #21262d;
+            color: #8b949e;
+            border: 1px solid #30363d;
+        }}
+        .phase-btn.inactive:hover {{
+            background: #30363d;
+            color: #c9d1d9;
         }}
         .store-badge {{
             background: #da3633;
@@ -450,9 +522,13 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path) -> Path:
 <body>
     <div class="header">
         <h1>🛒 Product Mapping Tool</h1>
-        <div>
-            <span class="source-badge">📋 Google Tasks</span>
-            <span class="store-badge">🏪 Hy-Vee</span>
+        <div class="phase-nav">
+            <button class="phase-btn inactive" onclick="navigateToPhase1()" id="phase1-btn">
+                🧠 Phase 1: Match Existing
+            </button>
+            <button class="phase-btn active" onclick="return false;">
+                🔍 Phase 2: Hy-Vee Search
+            </button>
         </div>
     </div>
     
@@ -672,6 +748,22 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path) -> Path:
                 setTimeout(() => event.target.textContent = '📋 Copy Remove Command', 2000);
             }});
         }}
+        
+        // Navigate to Phase 1 (Fuzzy Match)
+        function navigateToPhase1() {{
+            const btn = document.getElementById('phase1-btn');
+            if (btn.classList.contains('loading')) return;
+            
+            btn.classList.add('loading');
+            btn.textContent = '⏳ Loading...';
+            
+            // Redirect to fuzzy match UI
+            window.location.href = 'http://127.0.0.1:8766/data/fuzzy_match_items.html';
+        }}
+        
+        // Store repo root and list name for navigation
+        const repoRoot = '{str(repo_root)}';
+        const listName = '{list_name}';
     </script>
 </body>
 </html>'''

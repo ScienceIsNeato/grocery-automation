@@ -12,6 +12,7 @@ def generate_fuzzy_match_html(
     unmapped_items: list[dict],
     products_path: Path,
     repo_root: Path,
+    list_name: str = "Groceries",
 ) -> Path:
     """
     Generate interactive HTML for fuzzy matching unmapped items to existing products.
@@ -61,7 +62,7 @@ def generate_fuzzy_match_html(
             match_buttons.append(
                 f'<button class="match-btn" onclick="selectMatch(this, \'{match_key}\')" '
                 f'data-match="{js_match}" title="{safe_display}">'
-                f'{pct}% {safe_display[:30]}'
+                f'<span class="match-score">{pct}%</span> <span class="match-name">{safe_display}</span>'
                 f'</button>'
             )
         
@@ -75,9 +76,11 @@ def generate_fuzzy_match_html(
             <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">{safe_item}</span></td>
             <td class="qty-cell"><input type="number" class="qty-input" value="{quantity}" min="1" max="99" onchange="updateQuantity(this)" /></td>
             <td class="matches-cell">
-                {match_buttons[0]}
-                {match_buttons[1]}
-                {match_buttons[2]}
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {match_buttons[0]}
+                    {match_buttons[1]}
+                    {match_buttons[2]}
+                </div>
             </td>
             <td class="actions-cell">
                 <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
@@ -126,6 +129,38 @@ def generate_fuzzy_match_html(
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
+            cursor: default;
+        }}
+        .phase-nav {{
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }}
+        .phase-btn {{
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }}
+        .phase-btn.active {{
+            background: #8250df;
+            color: white;
+        }}
+        .phase-btn.inactive {{
+            background: #21262d;
+            color: #8b949e;
+            border: 1px solid #30363d;
+        }}
+        .phase-btn.inactive:hover {{
+            background: #30363d;
+            color: #c9d1d9;
+        }}
+        .phase-btn.loading {{
+            opacity: 0.6;
+            cursor: wait;
         }}
         .stats {{
             display: flex;
@@ -144,10 +179,10 @@ def generate_fuzzy_match_html(
             font-size: 13px;
         }}
         th, td {{
-            padding: 8px 10px;
+            padding: 12px 14px;
             text-align: left;
             border-bottom: 1px solid #21262d;
-            vertical-align: middle;
+            vertical-align: top;
         }}
         th {{
             background: #21262d;
@@ -164,8 +199,8 @@ def generate_fuzzy_match_html(
             transition: opacity 0.3s ease-out;
         }}
         tr.processed.hidden {{ display: none; }}
-        .row-num {{ color: #484f58; width: 30px; }}
-        .item-name {{ font-weight: 500; width: 200px; word-break: break-word; }}
+        .row-num {{ color: #8b949e; width: 50px; text-align: center; font-size: 13px; font-weight: 600; }}
+        .item-name {{ font-weight: 500; width: 280px; word-break: break-word; font-size: 14px; }}
         .editable-item {{
             padding: 4px 6px;
             border-radius: 3px;
@@ -183,10 +218,10 @@ def generate_fuzzy_match_html(
             border-color: #d29922; 
             background: #2d1b0e;
         }}
-        .qty-cell {{ width: 60px; }}
+        .qty-cell {{ width: 90px; }}
         .qty-input {{
-            width: 50px;
-            padding: 6px 4px;
+            width: 60px;
+            padding: 8px 6px;
             border: 1px solid #30363d;
             border-radius: 4px;
             font-size: 12px;
@@ -197,27 +232,51 @@ def generate_fuzzy_match_html(
         .qty-input:focus {{ border-color: #58a6ff; outline: none; }}
         .matches-cell {{ 
             display: flex; 
-            gap: 6px; 
-            flex-wrap: wrap;
-            width: 500px;
+            flex-direction: column;
+            gap: 8px; 
+            min-width: 400px;
+            max-width: 600px;
         }}
         .match-btn {{
-            padding: 6px 10px;
+            padding: 10px 12px;
             background: #21262d;
             color: #c9d1d9;
             border: 1px solid #30363d;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-            min-width: 0;
+            font-size: 13px;
+            text-align: left;
+            width: 100%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }}
-        .match-btn:hover {{ background: #30363d; border-color: #58a6ff; }}
-        .match-btn.active {{ background: #238636; border-color: #2ea043; }}
+        .match-btn:hover {{ 
+            background: #30363d; 
+            border-color: #58a6ff;
+            transform: translateX(2px);
+        }}
+        .match-btn.active {{ 
+            background: #238636; 
+            border-color: #2ea043;
+            box-shadow: 0 0 0 2px rgba(35, 134, 54, 0.3);
+        }}
         .match-btn.empty {{ opacity: 0.3; cursor: not-allowed; }}
+        .match-score {{
+            font-weight: 600;
+            color: #58a6ff;
+            min-width: 45px;
+            flex-shrink: 0;
+        }}
+        .match-btn.active .match-score {{
+            color: #7ee787;
+        }}
+        .match-name {{
+            flex: 1;
+            word-break: break-word;
+            line-height: 1.4;
+        }}
         .actions-cell {{ 
             display: flex; 
             gap: 6px;
@@ -255,12 +314,30 @@ def generate_fuzzy_match_html(
             font-weight: 600;
         }}
         .generate-btn:hover {{ background: #2ea043; }}
+        .reset-btn:hover {{ background: #21262d; }}
         .output-section {{
-            margin-top: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
             display: none;
         }}
         .output-section.visible {{ display: block; }}
-        .output-section h3 {{ color: #238636; margin-bottom: 10px; font-size: 16px; }}
+        .output-section h3 {{ color: #238636; margin-bottom: 10px; font-size: 18px; }}
+        .output-section p {{ margin: 8px 0; line-height: 1.6; }}
+        .search-hyvee-btn {{
+            background: #8250df;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 15px;
+        }}
+        .search-hyvee-btn:hover {{ background: #6e40c9; }}
         .json-output {{
             width: 100%;
             height: 150px;
@@ -363,7 +440,14 @@ def generate_fuzzy_match_html(
 <body>
     <div class="header">
         <h1>🔍 Fuzzy Match Existing Products</h1>
-        <span class="source-badge">🧠 Phase 1: Match Existing</span>
+        <div class="phase-nav">
+            <button class="phase-btn active" onclick="return false;">
+                🧠 Phase 1: Match Existing
+            </button>
+            <button class="phase-btn inactive" onclick="navigateToPhase2()" id="phase2-btn">
+                🔍 Phase 2: Hy-Vee Search
+            </button>
+        </div>
     </div>
     
     <div class="stats">
@@ -396,8 +480,9 @@ def generate_fuzzy_match_html(
     
     <div class="action-bar">
         <button class="generate-btn" onclick="updateListDetails()">✨ Update List Details</button>
+        <button class="reset-btn" onclick="resetAllSelections()" style="background: #30363d; color: #c9d1d9; border: 1px solid #30363d; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-left: 10px;">↺ Reset All</button>
         <span style="color: #8b949e; font-size: 12px; margin-left: 10px;">
-            (Writes substitutions, renames tasks, and re-runs orchestrator)
+            (Adds variations to products.json, renames tasks, refreshes page)
         </span>
     </div>
     
@@ -424,6 +509,7 @@ def generate_fuzzy_match_html(
         let currentRow = null;
         const allProducts = {product_list_json};
         const repoRoot = '{str(repo_root)}';
+        const listName = '{list_name}';
         
         function trackEdit(element) {{
             const row = element.closest('tr');
@@ -606,6 +692,7 @@ def generate_fuzzy_match_html(
                     headers: {{ 'Content-Type': 'application/json' }},
                     body: JSON.stringify({{
                         repo_root: repoRoot,
+                        list_name: listName,
                         substitutions: substitutions,
                         task_renames: taskRenames,
                         new_items: newItems
@@ -618,28 +705,47 @@ def generate_fuzzy_match_html(
                 
                 const result = await response.json();
                 
-                // Show success
+                // Show success with detailed info
                 document.getElementById('output-section').classList.add('visible');
-                document.getElementById('output-title').textContent = '✅ Changes Applied!';
-                const newItemsDisplay = newItems.map(ni => `${{ni.name}} (qty: ${{ni.quantity}})`).join('<br>');
-                document.getElementById('output-content').innerHTML = `
-                    <p style="color: #7ee787; margin-bottom: 10px;">
-                        ✓ Wrote ${{substitutions.length}} substitution(s) to data/substitutions.json<br>
-                        ✓ Renamed ${{result.tasks_renamed || 0}} task(s) in Google Tasks<br>
-                        ✓ Saved ${{newItems.length}} NEW item(s) for Hy-Vee search
-                    </p>
-                    <p style="color: #8b949e; font-size: 12px; margin-top: 15px;">
-                        Re-running orchestrator automatically in 2 seconds...
-                    </p>
-                    ${{newItems.length > 0 ? `
-                        <div style="margin-top: 15px; padding: 10px; background: #161b22; border-radius: 6px;">
-                            <h4 style="color: #8250df; margin: 0 0 8px 0;">✨ Items to search on Hy-Vee (Phase 2):</h4>
-                            <div style="color: #7ee787; font-family: monospace; font-size: 12px;">
+                document.getElementById('output-title').textContent = '✅ Changes Applied Successfully!';
+                
+                const variationsAdded = result.variations_added || substitutions.length;
+                const tasksRenamed = result.tasks_renamed || 0;
+                const newItemsCount = newItems.length;
+                
+                const newItemsDisplay = newItems.map(ni => `• ${{ni.name}} (qty: ${{ni.quantity}})`).join('<br>');
+                
+                let successHtml = `
+                    <div style="color: #7ee787; margin-bottom: 15px;">
+                        <p style="font-size: 15px; font-weight: 600; margin-bottom: 10px;">Summary:</p>
+                        <p>✓ Added <strong>${{variationsAdded}}</strong> variation(s) to products.json original_requests</p>
+                        <p>✓ Renamed <strong>${{tasksRenamed}}</strong> task(s) in Google Tasks</p>
+                        <p>✓ Saved <strong>${{newItemsCount}}</strong> NEW item(s) for Hy-Vee search</p>
+                    </div>
+                `;
+                
+                if (newItemsCount > 0) {{
+                    successHtml += `
+                        <div style="margin-top: 20px; padding: 15px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px;">
+                            <h4 style="color: #8250df; margin: 0 0 12px 0; font-size: 16px;">✨ Items to search on Hy-Vee:</h4>
+                            <div style="color: #7ee787; font-size: 14px; margin-bottom: 15px;">
                                 ${{newItemsDisplay}}
                             </div>
+                            <button class="search-hyvee-btn" onclick="proceedToHyveeSearch()">
+                                🔍 Search Hy-Vee for NEW Items
+                            </button>
                         </div>
-                    ` : ''}}
+                    `;
+                }}
+                
+                successHtml += `
+                    <p style="color: #8b949e; font-size: 13px; margin-top: 20px;">
+                        Page will refresh automatically in 7 seconds to show updated list...
+                        <button onclick="window.location.reload();" style="background: transparent; border: 1px solid #30363d; color: #58a6ff; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; font-size: 12px;">Refresh Now</button>
+                    </p>
                 `;
+                
+                document.getElementById('output-content').innerHTML = successHtml;
                 
                 // Fade out all adjudicated rows
                 rows.forEach(row => {{
@@ -649,14 +755,11 @@ def generate_fuzzy_match_html(
                     }}
                 }});
                 
-                // Auto-reload orchestrator (simulated - user will need to re-run manually)
+                // Auto-refresh page to show updated list (HTML was regenerated on server)
+                // Increased timeout so user can read the success message
                 setTimeout(() => {{
-                    document.getElementById('output-content').innerHTML += `
-                        <p style="color: #58a6ff; font-size: 14px; margin-top: 15px;">
-                            ✅ Done! Close this window and check your terminal for next steps.
-                        </p>
-                    `;
-                }}, 2000);
+                    window.location.reload();
+                }}, 7000);
                 
             }} catch (error) {{
                 document.getElementById('output-section').classList.add('visible');
@@ -673,6 +776,78 @@ def generate_fuzzy_match_html(
                 btn.disabled = false;
                 btn.textContent = '✨ Update List Details';
             }}
+        }}
+        
+        // Navigate to Phase 2 (Hy-Vee search)
+        async function navigateToPhase2() {{
+            const btn = document.getElementById('phase2-btn');
+            if (btn.classList.contains('loading')) return;
+            
+            btn.classList.add('loading');
+            btn.textContent = '⏳ Loading...';
+            
+            try {{
+                const response = await fetch('http://127.0.0.1:8766/proceed-to-hyvee-search', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        repo_root: repoRoot,
+                        list_name: listName
+                    }})
+                }});
+                
+                const result = await response.json();
+                
+                if (result.success && result.hyvee_html) {{
+                    // Redirect to Hy-Vee search page
+                    window.location.href = `http://127.0.0.1:8766/data/unmapped_items.html`;
+                }} else {{
+                    btn.classList.remove('loading');
+                    btn.textContent = '🔍 Phase 2: Hy-Vee Search';
+                    alert(result.message || 'No unmapped items found. All items are mapped!');
+                }}
+            }} catch (error) {{
+                btn.classList.remove('loading');
+                btn.textContent = '🔍 Phase 2: Hy-Vee Search';
+                alert('Failed to proceed to Hy-Vee search: ' + error.message);
+            }}
+        }}
+        
+        // Proceed to Hy-Vee search phase (kept for backward compatibility)
+        async function proceedToHyveeSearch() {{
+            return navigateToPhase2();
+        }}
+        
+        // Reset all selections
+        function resetAllSelections() {{
+            if (!confirm('Reset all selections? This will clear all mappings and mark all items as pending.')) {{
+                return;
+            }}
+            
+            const rows = document.querySelectorAll('#items-body tr');
+            rows.forEach(row => {{
+                row.dataset.status = 'pending';
+                row.dataset.matchedTo = '';
+                
+                // Remove selection badge
+                const badge = row.querySelector('.selection-badge');
+                if (badge) badge.remove();
+                
+                // Reset row styling
+                row.style.opacity = '1';
+                row.style.backgroundColor = '';
+                
+                // Clear any selection indicators
+                const selectionCell = row.querySelector('.selection-cell');
+                if (selectionCell) {{
+                    selectionCell.innerHTML = '';
+                }}
+            }});
+            
+            updateCounts();
+            
+            // Hide output section if visible
+            document.getElementById('output-section').classList.remove('visible');
         }}
         
         // Close modal on escape key
