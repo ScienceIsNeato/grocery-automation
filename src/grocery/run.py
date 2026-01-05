@@ -11,7 +11,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from grocery.tools import gtasks, library
+from grocery.tools import gtasks, library, fuzzy_ui
 from grocery.tools.errors import GroceryError, hyvee_setup_required
 from grocery.tools.hyvee import build_search_url
 from grocery.tools import hyvee
@@ -58,6 +58,11 @@ def main() -> int:
         help="Path to unavailable.json log",
     )
     parser.add_argument("--headless", action="store_true", help="Run browser in headless mode")
+    parser.add_argument(
+        "--skip-fuzzy",
+        action="store_true",
+        help="Skip fuzzy matching phase and go straight to Hy-Vee product search for unmapped items",
+    )
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root)
@@ -98,33 +103,83 @@ def main() -> int:
         normalized = gtasks.normalize(items=raw_titles, substitutions=subs)
         normalized_names = [x["normalized"] for x in normalized]
 
-        _, unmapped = library.verify_all_mapped(products_path, normalized_names)
-        if unmapped:
-            # Generate clickable HTML file for easy mapping workflow
-            unmapped_html = _generate_unmapped_html(unmapped, repo_root)
+        _, unmapped_names = library.verify_all_mapped(products_path, normalized_names)
+        if unmapped_names:
+            # Build rich unmapped items (with quantities from normalize())
+            unmapped_items = []
+            for norm in normalized:
+                if norm["normalized"] in unmapped_names:
+                    unmapped_items.append({
+                        "original": norm["original"],
+                        "normalized": norm["normalized"],
+                        "quantity": norm["quantity"],
+                    })
             
-            # Show all unmapped items and exit - user must map before proceeding
-            print(f"\n{'='*60}")
-            print(f"UNMAPPED ITEMS: {len(unmapped)} item(s) need mapping")
-            print(f"{'='*60}\n")
-            for i, item in enumerate(unmapped, 1):
-                url = build_search_url(item)
-                print(f"{i:2}. {item}")
-                print(f"    Search: {url}\n")
-            print(f"{'='*60}")
-            print(f"📋 Clickable list saved to: {unmapped_html}")
-            print(f"   Open in browser: file://{unmapped_html}")
-            print(f"{'='*60}")
-            print("Add product URLs to data/products.json, then re-run.")
-            print(f"{'='*60}\n")
-            
-            # Try to open the HTML file automatically
-            try:
-                subprocess.run(["open", str(unmapped_html)], check=False)
-            except Exception:
-                pass  # Silently fail if 'open' isn't available
-            
-            return 1
+            if not args.skip_fuzzy:
+                # Phase 1: Fuzzy match against existing products (avoids unnecessary Hy-Vee searches)
+                fuzzy_html = fuzzy_ui.generate_fuzzy_match_html(unmapped_items, products_path, repo_root)
+                
+                print(f"\n{'='*60}")
+                print(f"STEP 1: FUZZY MATCH EXISTING PRODUCTS")
+                print(f"{'='*60}")
+                print(f"Found {len(unmapped_items)} unmapped item(s).")
+                print(f"\nBefore searching Hy-Vee, let's check if these are just")
+                print(f"different phrasings of products you've already mapped.")
+                print(f"\n{'='*60}")
+                # Use Flask server (port 8766) for both static files and API
+                http_url = f"http://127.0.0.1:8766/data/fuzzy_match_items.html"
+                
+                print(f"📋 Fuzzy match UI: {fuzzy_html}")
+                print(f"   Open in browser: {http_url}")
+                print(f"{'='*60}")
+                print(f"\nINSTRUCTIONS:")
+                print(f"  1. Edit item names inline (click to fix voice-to-text errors)")
+                print(f"  2. Review fuzzy matches (top 3 shown) and click to map")
+                print(f"  3. Or browse full product list, or mark as 'NEW'")
+                print(f"  4. Click 'Update List Details' button")
+                print(f"  5. Download and run the generated script")
+                print(f"\n  The script will:")
+                print(f"    - Write substitutions to data/substitutions.json")
+                print(f"    - Rename edited tasks in Google Tasks")
+                print(f"    - Re-run orchestrator automatically")
+                print(f"\n  Items marked 'NEW' will be shown in Hy-Vee search UI next.")
+                print(f"  (Or re-run with --skip-fuzzy to go straight to Hy-Vee search)")
+                print(f"{'='*60}\n")
+                
+                # Try to open in browser via HTTP (avoids file:// CORS issues)
+                try:
+                    subprocess.run(["open", http_url], check=False)
+                except Exception:
+                    pass  # Silently fail if 'open' isn't available
+                
+                return 1
+            else:
+                # Phase 2: Hy-Vee product search for truly new items
+                unmapped_html = _generate_unmapped_html(unmapped_items, repo_root)
+                
+                print(f"\n{'='*60}")
+                print(f"STEP 2: HY-VEE PRODUCT SEARCH")
+                print(f"{'='*60}")
+                print(f"Found {len(unmapped_items)} item(s) that need Hy-Vee product URLs.")
+                print(f"\n{'='*60}")
+                print(f"📋 Product search UI: {unmapped_html}")
+                print(f"   Open in browser: file://{unmapped_html}")
+                print(f"{'='*60}")
+                print(f"\nINSTRUCTIONS:")
+                print(f"  1. Click 🔍 to search Hy-Vee for each item")
+                print(f"  2. Paste product page URLs")
+                print(f"  3. Generate JSON and paste into:")
+                print(f"     data/products.json (under 'products')")
+                print(f"  4. Re-run this command")
+                print(f"{'='*60}\n")
+                
+                # Try to open the HTML file automatically
+                try:
+                    subprocess.run(["open", str(unmapped_html)], check=False)
+                except Exception:
+                    pass  # Silently fail if 'open' isn't available
+                
+                return 1
 
         print(f"All {len(normalized_names)} items mapped. Proceeding to cart...")
 
@@ -160,8 +215,13 @@ def main() -> int:
         return e.code
 
 
-def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
-    """Generate an HTML file with clickable search links for unmapped items."""
+def _generate_unmapped_html(unmapped: list[dict], repo_root: Path) -> Path:
+    """Generate an HTML file with clickable search links for unmapped items.
+    
+    Args:
+        unmapped: List of dicts with keys: original (or name), normalized, quantity
+        repo_root: Repo root directory
+    """
     from datetime import datetime
     
     output_dir = repo_root / "data"
@@ -171,7 +231,9 @@ def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     rows = []
-    for i, item in enumerate(unmapped):
+    for i, item_obj in enumerate(unmapped):
+        item = item_obj.get("name") or item_obj.get("original") or item_obj.get("normalized")
+        quantity = item_obj.get("quantity", 1)
         search_url = build_search_url(item)
         # Escape HTML special characters and quotes for JS
         safe_item = item.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -182,7 +244,7 @@ def _generate_unmapped_html(unmapped: list[str], repo_root: Path) -> Path:
             <td class="item-name">{safe_item}</td>
             <td><a href="{search_url}" target="_blank" class="search-link">🔍</a></td>
             <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
+            <td class="qty-cell"><input type="number" class="qty-input" value="{quantity}" min="1" max="99" /></td>
             <td class="preview-cell"><div class="preview"></div></td>
             <td class="actions">
                 <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>

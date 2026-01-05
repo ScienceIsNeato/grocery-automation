@@ -22,5 +22,6 @@ token.json
 data/unavailable.json
 data/session.json
 
-
+# Cursor IDE
 .cursor
+cursor-rules/

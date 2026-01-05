@@ -1,0 +1,35 @@
+feat: complete fuzzy UI + Flask backend for auto-apply workflow
+
+Editable items + quantity support:
+- Click item names to edit inline (fixes voice-to-text errors)
+- Quantity fields pre-populated from gtasks.normalize()
+- Edited items automatically renamed in Google Tasks on apply
+- Quantities forward-propagate to Hy-Vee search UI
+
+Server-side auto-apply (eliminates copy/paste):
+- Flask backend on port 8766 serves HTML + handles POST /apply-mappings
+- "Update List Details" button POSTs to backend
+- Backend writes data/substitutions.json idempotently
+- Backend renames tasks in Google Tasks API
+- Backend saves new_items.json for Phase 2 (Hy-Vee search)
+- Adjudicated rows fade out after successful apply
+
+Implementation:
+- src/grocery/server.py: Flask app with static files + API endpoint
+- src/grocery/tools/fuzzy_ui.py: Updated to POST via fetch()
+- src/grocery/tools/library.py: Added fuzzy_match_products() using difflib
+- pyproject.toml: Added flask, flask-cors to dev dependencies
+- .gitignore: Added cursor-rules/ to exclusions
+
+Workflow:
+1. Run orchestrator → generates fuzzy UI
+2. Edit names, click matches or NEW
+3. Click "Update List Details" → server applies changes
+4. Re-run orchestrator → see updated list with remaining items
+
+Known issues:
+- 8 unit tests failing (hyvee.py API refactor - old get_cart_contents removed)
+- Flask server must be manually started before orchestrator
+- Need wrapper script to auto-start Flask + orchestrator together
+
+Next: Fix failing tests + auto-start Flask server.

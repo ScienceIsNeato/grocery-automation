@@ -16,6 +16,8 @@ grocery-run = "grocery.run:main"
 [project.optional-dependencies]
 dev = [
   "pytest",
+  "flask",
+  "flask-cors",
 ]
 
 [build-system]

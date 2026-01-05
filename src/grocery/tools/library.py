@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from difflib import get_close_matches
 from pathlib import Path
 from typing import Any
 
@@ -87,5 +88,33 @@ def verify_all_mapped(products_path: Path, items: list[str]) -> tuple[list[str],
         key = normalize_key(item)
         (mapped if key in products else unmapped).append(item)
     return mapped, unmapped
+
+
+def fuzzy_match_products(products_path: Path, item: str, n: int = 3, cutoff: float = 0.6) -> list[tuple[str, float]]:
+    """
+    Return top N fuzzy matches for an unmapped item.
+    
+    Returns list of (product_key, similarity_score) tuples, sorted by score descending.
+    Uses difflib.get_close_matches with configurable cutoff (default 0.6 = 60% similarity).
+    """
+    data = load_products(products_path)
+    products = data.get("products", {})
+    if not products:
+        return []
+    
+    normalized_item = normalize_key(item)
+    all_keys = list(products.keys())
+    
+    # get_close_matches returns sorted by similarity
+    matches = get_close_matches(normalized_item, all_keys, n=n, cutoff=cutoff)
+    
+    # Compute actual scores using SequenceMatcher for display
+    from difflib import SequenceMatcher
+    results = []
+    for match in matches:
+        score = SequenceMatcher(None, normalized_item, match).ratio()
+        results.append((match, score))
+    
+    return results
 
 

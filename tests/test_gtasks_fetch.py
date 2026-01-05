@@ -57,7 +57,7 @@ def test_fetch_open_task_titles_happy_path(monkeypatch, tmp_path: Path):
 
     def _fake_build(*, repo_root: Path, scopes: list[str]):
         assert repo_root == tmp_path
-        assert scopes == gtasks.DEFAULT_SCOPES_READONLY
+        assert scopes == gtasks.DEFAULT_SCOPES_READWRITE
         return fake
 
     monkeypatch.setattr(gtasks, "_build_tasks_service", _fake_build)

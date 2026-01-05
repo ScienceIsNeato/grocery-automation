@@ -233,5 +233,78 @@ git commit -m "feat: complete mapping loop + batch CLI flags
 - [ ] **Progress bar**: Show X/Y items processed
 - [ ] **Dry-run cart preview**: Show what would be added without browser
 
-## 13) Last updated
-- 2025-12-16 03:35 (Rewrote cart functions with verification)
+## 13) Fuzzy Matching Phase (NEW - 2025-12-16 06:38)
+
+### What changed
+Added a **two-phase mapping workflow** to reduce unnecessary Hy-Vee searches:
+
+**Phase 1: Fuzzy Match Existing Products** (new)
+- Before searching Hy-Vee, check if unmapped items are just different phrasings
+- Shows interactive HTML UI with:
+  - Top 3 fuzzy matches (scored by similarity)
+  - Option to browse all products alphabetically
+  - Option to mark as "NEW" if truly new
+- Generates `substitutions.json` entries to map new phrases → existing products
+- Reduces redundant product mappings
+
+**Phase 2: Hy-Vee Product Search** (existing, now only for "NEW" items)
+- Shows HTML UI with Hy-Vee search links
+- Only shown for items marked "NEW" in Phase 1
+- Or use `--skip-fuzzy` flag to skip straight to this phase
+
+### Implementation
+- `src/grocery/tools/library.py`: Added `fuzzy_match_products()` using `difflib`
+- `src/grocery/tools/fuzzy_ui.py`: New HTML generator for Phase 1
+- `src/grocery/run.py`: Wired fuzzy matching as first step
+- `--skip-fuzzy` flag to bypass Phase 1 if already done
+
+### Current state
+- Fuzzy match HTML generated: `data/fuzzy_match_items.html`
+- 34 unmapped items ready for Phase 1 review
+- **Test failures**: 8 tests failing due to `hyvee.py` refactor (old `get_cart_contents` API removed)
+  - Tests use old text-matching API
+  - Current code uses product ID matching
+  - Needs test fixture updates
+
+### Next steps for next agent
+1. **Fix 8 failing tests** in `tests/test_hyvee_cart_tools.py`, `tests/test_hyvee_login.py`, `tests/test_hyvee_search.py`
+   - Update test fakes to match current `hyvee.py` API (product IDs, not text)
+   - Add `.url` attribute to `_FakePage` in login tests
+   - Add `.count()` method to `_FakeLocator` in search tests
+
+2. **Complete mapping workflow**:
+   - Work through `fuzzy_match_items.html` (already open)
+   - Add generated substitutions to `data/substitutions.json`
+   - Re-run orchestrator
+   - For remaining NEW items, work through Hy-Vee search UI
+
+## 14) Session continuation (2025-12-16 06:50)
+
+### What changed (fuzzy UI improvements)
+- Added **editable item names** (click to fix voice-to-text errors)
+- Added **quantity field** (pre-populated from gtasks.normalize())
+- Quantities forward-propagate to Hy-Vee search UI for NEW items
+- Rows stay visible until "Update List Details" is clicked
+- Adjudicated rows fade out after button click
+
+### Current blocker
+**"Update List Details" button needs backend server**:
+- Currently generates downloadable Python script (UX is clunky)
+- User wants: Click button → changes execute server-side automatically
+- Need to: Add Flask/simple HTTP backend with POST `/apply-mappings` endpoint
+- Backend writes substitutions.json, updates Google Tasks, writes new_items.json
+
+### JavaScript syntax issues
+- Complex nested template literals causing escaping hell
+- Line 363 in generated JS has quote escaping bug
+- All clicks work EXCEPT the Update List Details button execution logic
+
+### Next agent todo
+1. **Simplify backend approach**: Add Flask + POST endpoint OR use simpler HTTP handler
+2. **Fix JavaScript**: Replace complex template literal script generation with simple fetch() POST
+3. **Wire backend**: Start server in background when fuzzy UI shown, stop after apply
+4. **Fix 8 failing tests**: Old hyvee.py API (get_cart_contents text-based → new product ID-based)
+5. **Complete mapping workflow**: User adjudicates 34 items → run full cart orchestration
+
+## 15) Last updated
+- 2025-12-16 06:50 (Fuzzy UI improvements, needs backend server for auto-apply)
