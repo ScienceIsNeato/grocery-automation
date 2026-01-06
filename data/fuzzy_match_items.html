@@ -60,6 +60,10 @@
             opacity: 0.6;
             cursor: wait;
         }
+        .phase-btn.loading {
+            opacity: 0.6;
+            cursor: wait;
+        }
         .stats {
             display: flex;
             gap: 20px;
@@ -345,11 +349,14 @@
             <button class="phase-btn inactive" onclick="navigateToPhase2()" id="phase2-btn">
                 🔍 Phase 2: Hy-Vee Search
             </button>
+            <button class="phase-btn inactive" onclick="navigateToPhase3()" id="phase3-btn">
+                🛒 Phase 3: Add to Cart
+            </button>
         </div>
     </div>
     
     <div class="stats">
-        <span class="stat">Remaining: <strong>24 / 24</strong></span>
+        <span class="stat">Remaining: <strong>3 / 3</strong></span>
         <span class="stat">Mapped: <strong id="matched-count">0</strong></span>
         <span class="stat">New: <strong id="new-count">0</strong></span>
     </div>
@@ -391,44 +398,8 @@
             <td class="selection-cell"></td>
             <td class="status-cell">🆕</td>
         </tr>
-        <tr data-item="American cheese slices" data-original="American cheese slices" data-status="pending" data-quantity="1">
-            <td class="row-num">2</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">American cheese slices</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'cottage cheese two small containers')" data-match="cottage cheese two small containers" title="Hyvee 4 Small Curd Cottage Cheese"><span class="match-score">52%</span> <span class="match-name">Hyvee 4 Small Curd Cottage Cheese</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Two boxes vanilla wafers" data-original="Two boxes vanilla wafers" data-status="pending" data-quantity="1">
-            <td class="row-num">3</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Two boxes vanilla wafers</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
         <tr data-item="Cantaloupe" data-original="Cantaloupe" data-status="pending" data-quantity="1">
-            <td class="row-num">4</td>
+            <td class="row-num">2</td>
             <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Cantaloupe</span></td>
             <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
             <td class="matches-cell">
@@ -445,356 +416,14 @@
             <td class="selection-cell"></td>
             <td class="status-cell">🆕</td>
         </tr>
-        <tr data-item="Grape juice free bottles" data-original="Grape juice free bottles" data-status="pending" data-quantity="1">
-            <td class="row-num">5</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Grape juice free bottles</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'cranberry juice free bottles')" data-match="cranberry juice free bottles" title="Ocean Spray Diet Cranberry Juice Drink"><span class="match-score">84%</span> <span class="match-name">Ocean Spray Diet Cranberry Juice Drink</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'fresca bottles')" data-match="fresca bottles" title="Fresca Grapefruit Citrus Soda 6pk"><span class="match-score">57%</span> <span class="match-name">Fresca Grapefruit Citrus Soda 6pk</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="That\'s my mom\'s salad dressing" data-original="That\'s my mom\'s salad dressing" data-status="pending" data-quantity="1">
-            <td class="row-num">6</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">That's my mom's salad dressing</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="18 Oz package cream cheese" data-original="18 Oz package cream cheese" data-status="pending" data-quantity="18">
-            <td class="row-num">7</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">18 Oz package cream cheese</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="18" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'cottage cheese (3x)')" data-match="cottage cheese (3x)" title="Hy-Vee 4% Small Curd Cottage Cheese"><span class="match-score">52%</span> <span class="match-name">Hy-Vee 4% Small Curd Cottage Cheese</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Havarti cheese slices" data-original="Havarti cheese slices" data-status="pending" data-quantity="1">
-            <td class="row-num">8</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Havarti cheese slices</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'cottage cheese two small containers')" data-match="cottage cheese two small containers" title="Hyvee 4 Small Curd Cottage Cheese"><span class="match-score">50%</span> <span class="match-name">Hyvee 4 Small Curd Cottage Cheese</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Shredded cheddar cheese Sharp" data-original="Shredded cheddar cheese Sharp" data-status="pending" data-quantity="1">
-            <td class="row-num">9</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Shredded cheddar cheese Sharp</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'shredded cheddar cheese')" data-match="shredded cheddar cheese" title="Hyvee Finely Shredded Mild Cheddar Natural Cheese"><span class="match-score">88%</span> <span class="match-name">Hyvee Finely Shredded Mild Cheddar Natural Cheese</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'shredded lettuce')" data-match="shredded lettuce" title="Dole Shredded Iceberg Lettuce"><span class="match-score">48%</span> <span class="match-name">Dole Shredded Iceberg Lettuce</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Fresh mushrooms" data-original="Fresh mushrooms" data-status="pending" data-quantity="1">
-            <td class="row-num">10</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Fresh mushrooms</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'cream of mushroom soup')" data-match="cream of mushroom soup" title="Campbells 25 Less Sodium Cream Of Mushroom Condensed Soup"><span class="match-score">64%</span> <span class="match-name">Campbells 25 Less Sodium Cream Of Mushroom Condensed Soup</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'fresh bass')" data-match="fresh bass" title="Fresh USA Farm Raised Rainbow Trout Fillets"><span class="match-score">64%</span> <span class="match-name">Fresh USA Farm Raised Rainbow Trout Fillets</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'fresh thyme')" data-match="fresh thyme" title="Ernessi Farms Thyme"><span class="match-score">53%</span> <span class="match-name">Ernessi Farms Thyme</span></button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Spaghetti sauce" data-original="Spaghetti sauce" data-status="pending" data-quantity="1">
-            <td class="row-num">11</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Spaghetti sauce</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'tartar sauce')" data-match="tartar sauce" title="Hy-Vee Tartar Sauce"><span class="match-score">59%</span> <span class="match-name">Hy-Vee Tartar Sauce</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'froxen spagheet and meat sauce dinner')" data-match="froxen spagheet and meat sauce dinner" title="Stouffers Spaghetti With Meat Sauce Frozen Meal"><span class="match-score">53%</span> <span class="match-name">Stouffers Spaghetti With Meat Sauce Frozen Meal</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'shredded lettuce')" data-match="shredded lettuce" title="Dole Shredded Iceberg Lettuce"><span class="match-score">51%</span> <span class="match-name">Dole Shredded Iceberg Lettuce</span></button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Angel hair spaghetti" data-original="Angel hair spaghetti" data-status="pending" data-quantity="1">
-            <td class="row-num">12</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Angel hair spaghetti</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Frozen mixed vegetables" data-original="Frozen mixed vegetables" data-status="pending" data-quantity="1">
-            <td class="row-num">13</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Frozen mixed vegetables</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen lima beans')" data-match="frozen lima beans" title="Hy-Vee Baby Lima Beans Fresh Steam"><span class="match-score">57%</span> <span class="match-name">Hy-Vee Baby Lima Beans Fresh Steam</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen shrimp cocktail')" data-match="frozen shrimp cocktail" title="Fish Market Shrimp Platter with Cocktail Sauce"><span class="match-score">53%</span> <span class="match-name">Fish Market Shrimp Platter with Cocktail Sauce</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen pizza')" data-match="frozen pizza" title="Brew Pub Lotzza Motzza Pepperoni Pizza"><span class="match-score">51%</span> <span class="match-name">Brew Pub Lotzza Motzza Pepperoni Pizza</span></button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Frozen corn" data-original="Frozen corn" data-status="pending" data-quantity="1">
-            <td class="row-num">14</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Frozen corn</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen shrimp cocktail')" data-match="frozen shrimp cocktail" title="Fish Market Shrimp Platter with Cocktail Sauce"><span class="match-score">62%</span> <span class="match-name">Fish Market Shrimp Platter with Cocktail Sauce</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen pizza')" data-match="frozen pizza" title="Brew Pub Lotzza Motzza Pepperoni Pizza"><span class="match-score">60%</span> <span class="match-name">Brew Pub Lotzza Motzza Pepperoni Pizza</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen lima beans')" data-match="frozen lima beans" title="Hy-Vee Baby Lima Beans Fresh Steam"><span class="match-score">60%</span> <span class="match-name">Hy-Vee Baby Lima Beans Fresh Steam</span></button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="One kimbasa" data-original="One kimbasa" data-status="pending" data-quantity="1">
-            <td class="row-num">15</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">One kimbasa</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'frozen lima beans')" data-match="frozen lima beans" title="Hy-Vee Baby Lima Beans Fresh Steam"><span class="match-score">60%</span> <span class="match-name">Hy-Vee Baby Lima Beans Fresh Steam</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'tomatoes')" data-match="tomatoes" title="Tomatoes on the Vine"><span class="match-score">57%</span> <span class="match-name">Tomatoes on the Vine</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="1 lb salted butter" data-original="1 lb salted butter" data-status="pending" data-quantity="1">
-            <td class="row-num">16</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">1 lb salted butter</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'lightly salted potato chips')" data-match="lightly salted potato chips" title="Lays Lightly Salted Classic Potato Chips"><span class="match-score">51%</span> <span class="match-name">Lays Lightly Salted Classic Potato Chips</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'lightly salted chips')" data-match="lightly salted chips" title="Lay's Lightly Salted Classic Potato Chips"><span class="match-score">50%</span> <span class="match-name">Lay's Lightly Salted Classic Potato Chips</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Spinach, fresh" data-original="Spinach, fresh" data-status="pending" data-quantity="1">
-            <td class="row-num">17</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Spinach, fresh</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Iceberg lettuce" data-original="Iceberg lettuce" data-status="pending" data-quantity="1">
-            <td class="row-num">18</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Iceberg lettuce</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'shredded lettuce')" data-match="shredded lettuce" title="Dole Shredded Iceberg Lettuce"><span class="match-score">64%</span> <span class="match-name">Dole Shredded Iceberg Lettuce</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Chicken thighs" data-original="Chicken thighs" data-status="pending" data-quantity="1">
-            <td class="row-num">19</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Chicken thighs</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'chicken thigs')" data-match="chicken thigs" title="Hyvee True All Natural Cage Free Boneless Skinless Chicken Thigh Meat"><span class="match-score">96%</span> <span class="match-name">Hyvee True All Natural Cage Free Boneless Skinless Chicken Thigh Meat</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'pickled herring')" data-match="pickled herring" title="Fish Market Herring Fillets In Wine Sauce"><span class="match-score">41%</span> <span class="match-name">Fish Market Herring Fillets In Wine Sauce</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
         <tr data-item="C9bb salllàd kit" data-original="C9bb salllàd kit" data-status="pending" data-quantity="1">
-            <td class="row-num">20</td>
+            <td class="row-num">3</td>
             <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">C9bb salllàd kit</span></td>
             <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
             <td class="matches-cell">
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button class="match-btn" onclick="selectMatch(this, 'asian salad kit')" data-match="asian salad kit" title="Dole Chopped Sesame Asian"><span class="match-score">58%</span> <span class="match-name">Dole Chopped Sesame Asian</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="409 spray" data-original="409 spray" data-status="pending" data-quantity="409">
-            <td class="row-num">21</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">409 spray</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="409" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Dawn dish soap" data-original="Dawn dish soap" data-status="pending" data-quantity="1">
-            <td class="row-num">22</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Dawn dish soap</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'pack of dish sponges')" data-match="pack of dish sponges" title="Scotch-Brite Heavy Duty Scrub Sponges"><span class="match-score">52%</span> <span class="match-name">Scotch-Brite Heavy Duty Scrub Sponges</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="bag storage clips" data-original="bag storage clips" data-status="pending" data-quantity="1">
-            <td class="row-num">23</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">bag storage clips</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn" onclick="selectMatch(this, 'lightly salted chips')" data-match="lightly salted chips" title="Lay's Lightly Salted Classic Potato Chips"><span class="match-score">54%</span> <span class="match-name">Lay's Lightly Salted Classic Potato Chips</span></button>
-                    <button class="match-btn" onclick="selectMatch(this, 'bag of potatoes')" data-match="bag of potatoes" title="Green Giant Red Potatoes"><span class="match-score">50%</span> <span class="match-name">Green Giant Red Potatoes</span></button>
-                    <button class="match-btn empty" disabled>—</button>
-                </div>
-            </td>
-            <td class="actions-cell">
-                <button class="manual-btn" onclick="showManualSelect(this)">📋 Browse All</button>
-                <button class="new-btn active" onclick="markAsNew(this)">✨ NEW</button>
-            </td>
-            <td class="selection-cell"></td>
-            <td class="status-cell">🆕</td>
-        </tr>
-        <tr data-item="Silver polish colon 1 wright\'\'s" data-original="Silver polish colon 1 wright\'\'s" data-status="pending" data-quantity="1">
-            <td class="row-num">24</td>
-            <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">Silver polish colon 1 wright''s</span></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" onchange="updateQuantity(this)" /></td>
-            <td class="matches-cell">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button class="match-btn empty" disabled>—</button>
-                    <button class="match-btn empty" disabled>—</button>
+                    <button class="match-btn" onclick="selectMatch(this, '1 lb salted butter')" data-match="1 lb salted butter" title="Hy Vee Sweet Cream Salted Butter Quarters"><span class="match-score">50%</span> <span class="match-name">Hy Vee Sweet Cream Salted Butter Quarters</span></button>
                     <button class="match-btn empty" disabled>—</button>
                 </div>
             </td>
@@ -830,7 +459,12 @@
             </div>
             <input type="text" class="search-box" id="modal-search" placeholder="Type to filter..." onkeyup="filterProducts()">
             <div class="product-list" id="product-list">
-                <div class="product-item" onclick="selectProduct('5 bananas')"><span class="product-display">Fresh Chiquita Bananas</span><span class="product-key">5 bananas</span></div>
+                <div class="product-item" onclick="selectProduct('1 lb salted butter')"><span class="product-display">Hy Vee Sweet Cream Salted Butter Quarters</span><span class="product-key">1 lb salted butter</span></div>
+<div class="product-item" onclick="selectProduct('409 spray')"><span class="product-display">Formula 409 Multi Surface Original Cleaner Spray</span><span class="product-key">409 spray</span></div>
+<div class="product-item" onclick="selectProduct('5 bananas')"><span class="product-display">Fresh Chiquita Bananas</span><span class="product-key">5 bananas</span></div>
+<div class="product-item" onclick="selectProduct('8 oz package cream cheese')"><span class="product-display">Hy Vee Cream Cheese</span><span class="product-key">8 oz package cream cheese</span></div>
+<div class="product-item" onclick="selectProduct('american cheese slices')"><span class="product-display">Hy Vee Singles American Cheese 24ct</span><span class="product-key">american cheese slices</span></div>
+<div class="product-item" onclick="selectProduct('angel hair spaghetti')"><span class="product-display">Hy Vee Angel Hair</span><span class="product-key">angel hair spaghetti</span></div>
 <div class="product-item" onclick="selectProduct('asian salad kit')"><span class="product-display">Dole Chopped Sesame Asian</span><span class="product-key">asian salad kit</span></div>
 <div class="product-item" onclick="selectProduct('avocado')"><span class="product-display">Hass Avocados</span><span class="product-key">avocado</span></div>
 <div class="product-item" onclick="selectProduct('bag of potatoes')"><span class="product-display">Green Giant Red Potatoes</span><span class="product-key">bag of potatoes</span></div>
@@ -852,12 +486,15 @@
 <div class="product-item" onclick="selectProduct('cranberry juice free bottles')"><span class="product-display">Ocean Spray Diet Cranberry Juice Drink</span><span class="product-key">cranberry juice free bottles</span></div>
 <div class="product-item" onclick="selectProduct('cream of mushroom soup')"><span class="product-display">Campbells 25 Less Sodium Cream Of Mushroom Condensed Soup</span><span class="product-key">cream of mushroom soup</span></div>
 <div class="product-item" onclick="selectProduct('dave's bread whole wheat')"><span class="product-display">Dave's Killer Bread Good Seed Whole Grain Organic Bread</span><span class="product-key">dave's bread whole wheat</span></div>
+<div class="product-item" onclick="selectProduct('dawn dish soap')"><span class="product-display">Dawn Platinum Powerwash Dish Spray Dish Soap Fresh Scent Refill</span><span class="product-key">dawn dish soap</span></div>
 <div class="product-item" onclick="selectProduct('fresca bottles')"><span class="product-display">Fresca Grapefruit Citrus Soda 6pk</span><span class="product-key">fresca bottles</span></div>
 <div class="product-item" onclick="selectProduct('fresh bass')"><span class="product-display">Fresh USA Farm Raised Rainbow Trout Fillets</span><span class="product-key">fresh bass</span></div>
 <div class="product-item" onclick="selectProduct('fresh lemon')"><span class="product-display">Kings River Lemons Premium Citrus</span><span class="product-key">fresh lemon</span></div>
+<div class="product-item" onclick="selectProduct('fresh mushrooms')"><span class="product-display">Highline Sliced White Mushrooms</span><span class="product-key">fresh mushrooms</span></div>
 <div class="product-item" onclick="selectProduct('fresh thyme')"><span class="product-display">Ernessi Farms Thyme</span><span class="product-key">fresh thyme</span></div>
 <div class="product-item" onclick="selectProduct('froxen spagheet and meat sauce dinner')"><span class="product-display">Stouffers Spaghetti With Meat Sauce Frozen Meal</span><span class="product-key">froxen spagheet and meat sauce dinner</span></div>
 <div class="product-item" onclick="selectProduct('frozen lima beans')"><span class="product-display">Hy-Vee Baby Lima Beans Fresh Steam</span><span class="product-key">frozen lima beans</span></div>
+<div class="product-item" onclick="selectProduct('frozen mixed vegetables')"><span class="product-display">Birds Eye Steamfresh Mixed Vegetables Frozen Vegetables 10 Oz Bag</span><span class="product-key">frozen mixed vegetables</span></div>
 <div class="product-item" onclick="selectProduct('frozen pizza')"><span class="product-display">Brew Pub Lotzza Motzza Pepperoni Pizza</span><span class="product-key">frozen pizza</span></div>
 <div class="product-item" onclick="selectProduct('frozen shrimp alfredo')"><span class="product-display">Lean Cuisine Protein Kick Shrimp Alfredo</span><span class="product-key">frozen shrimp alfredo</span></div>
 <div class="product-item" onclick="selectProduct('frozen shrimp cocktail')"><span class="product-display">Fish Market Shrimp Platter with Cocktail Sauce</span><span class="product-key">frozen shrimp cocktail</span></div>
@@ -866,10 +503,13 @@
 <div class="product-item" onclick="selectProduct('gallon sized ziplocs')"><span class="product-display">Ziploc Gallon Storage Slider Bags 12 Ea</span><span class="product-key">gallon sized ziplocs</span></div>
 <div class="product-item" onclick="selectProduct('garlic')"><span class="product-display">Jumbo Garlic</span><span class="product-key">garlic</span></div>
 <div class="product-item" onclick="selectProduct('glasstop cleaner')"><span class="product-display">Bar Keepers Friend Cooktop Cleaner</span><span class="product-key">glasstop cleaner</span></div>
+<div class="product-item" onclick="selectProduct('grape juice')"><span class="product-display">Old Orchard Healthy Balance Diet Grape Juice Cocktail</span><span class="product-key">grape juice</span></div>
 <div class="product-item" onclick="selectProduct('half and half')"><span class="product-display">Search</span><span class="product-key">half and half</span></div>
+<div class="product-item" onclick="selectProduct('havarti cheese slices')"><span class="product-display">Hy Vee Sliced Havarti Cheese</span><span class="product-key">havarti cheese slices</span></div>
 <div class="product-item" onclick="selectProduct('healthy orchard grape 2x')"><span class="product-display">Old Orchard Healthy Balance Diet Grape Juice Cocktail</span><span class="product-key">healthy orchard grape 2x</span></div>
 <div class="product-item" onclick="selectProduct('honeydew')"><span class="product-display">Honeydew Ready To Eat</span><span class="product-key">honeydew</span></div>
 <div class="product-item" onclick="selectProduct('hungry man meatloaf frozen meal')"><span class="product-display">Boston Market Meatloaf</span><span class="product-key">hungry man meatloaf frozen meal</span></div>
+<div class="product-item" onclick="selectProduct('iceberg lettuce')"><span class="product-display">Dole Iceberg Lettuce</span><span class="product-key">iceberg lettuce</span></div>
 <div class="product-item" onclick="selectProduct('large chunk chocolate chip coookies')"><span class="product-display">Chips Ahoy Chunky Chocolate Chip Cookies Family Size</span><span class="product-key">large chunk chocolate chip coookies</span></div>
 <div class="product-item" onclick="selectProduct('lemonaide')"><span class="product-display">Minute Maid Sugar Lemonade Juice</span><span class="product-key">lemonaide</span></div>
 <div class="product-item" onclick="selectProduct('lightly salted chips')"><span class="product-display">Lay's Lightly Salted Classic Potato Chips</span><span class="product-key">lightly salted chips</span></div>
@@ -877,6 +517,7 @@
 <div class="product-item" onclick="selectProduct('miralax laxative large bottle')"><span class="product-display">Miralax 30 Once Daily Doses Powder Laxative</span><span class="product-key">miralax laxative large bottle</span></div>
 <div class="product-item" onclick="selectProduct('one box frozen shrimp alfredo dinner')"><span class="product-display">Lean Cuisine Protein Kick Shrimp Alfredo</span><span class="product-key">one box frozen shrimp alfredo dinner</span></div>
 <div class="product-item" onclick="selectProduct('one container sugar-free cool whip')"><span class="product-display">Hy-Vee Whipped Topping Zero Sugar</span><span class="product-key">one container sugar-free cool whip</span></div>
+<div class="product-item" onclick="selectProduct('one kimbasa')"><span class="product-display">Hillshire Farm Polska Kielbasa Smoked Sausage 14 Oz</span><span class="product-key">one kimbasa</span></div>
 <div class="product-item" onclick="selectProduct('orange')"><span class="product-display">Navel Oranges Large</span><span class="product-key">orange</span></div>
 <div class="product-item" onclick="selectProduct('pack of dish sponges')"><span class="product-display">Scotch-Brite Heavy Duty Scrub Sponges</span><span class="product-key">pack of dish sponges</span></div>
 <div class="product-item" onclick="selectProduct('pickled herring')"><span class="product-display">Fish Market Herring Fillets In Wine Sauce</span><span class="product-key">pickled herring</span></div>
@@ -886,20 +527,27 @@
 <div class="product-item" onclick="selectProduct('saltines')"><span class="product-display">Premium Saltine Crackers Original</span><span class="product-key">saltines</span></div>
 <div class="product-item" onclick="selectProduct('short carrots')"><span class="product-display">Grimmway Baby Carrots</span><span class="product-key">short carrots</span></div>
 <div class="product-item" onclick="selectProduct('shredded cheddar cheese')"><span class="product-display">Hyvee Finely Shredded Mild Cheddar Natural Cheese</span><span class="product-key">shredded cheddar cheese</span></div>
+<div class="product-item" onclick="selectProduct('shredded cheddar cheese sharp')"><span class="product-display">Hy Vee Shredded Sharp Cheddar Cheese</span><span class="product-key">shredded cheddar cheese sharp</span></div>
 <div class="product-item" onclick="selectProduct('shredded lettuce')"><span class="product-display">Dole Shredded Iceberg Lettuce</span><span class="product-key">shredded lettuce</span></div>
+<div class="product-item" onclick="selectProduct('silver polish colon 1 wright''s')"><span class="product-display">Twinkle Silver Polish Kit 4375 Oz</span><span class="product-key">silver polish colon 1 wright''s</span></div>
 <div class="product-item" onclick="selectProduct('small bag of yellow onions (maple and bacon variety)')"><span class="product-display">Yellow Onions</span><span class="product-key">small bag of yellow onions (maple and bacon variety)</span></div>
 <div class="product-item" onclick="selectProduct('sociables crackers two boxes')"><span class="product-display">Sociables Flavor Originals Sociables Baked Savory Crackers Party Snacks</span><span class="product-key">sociables crackers two boxes</span></div>
 <div class="product-item" onclick="selectProduct('sour cream two small containers')"><span class="product-display">Hyvee Light Sour Cream</span><span class="product-key">sour cream two small containers</span></div>
+<div class="product-item" onclick="selectProduct('spaghetti sauce')"><span class="product-display">Gustare Vita Tomato Basil Pasta Sauce</span><span class="product-key">spaghetti sauce</span></div>
+<div class="product-item" onclick="selectProduct('spinach, fresh')"><span class="product-display">Josies Organics Organic Baby Spinach</span><span class="product-key">spinach, fresh</span></div>
 <div class="product-item" onclick="selectProduct('splenda packages large box')"><span class="product-display">Splenda No Calorie Sweetener Individual Packets</span><span class="product-key">splenda packages large box</span></div>
 <div class="product-item" onclick="selectProduct('stuffing mix')"><span class="product-display">Pepperidge Farm Herb Seasoned Classic Stuffing</span><span class="product-key">stuffing mix</span></div>
 <div class="product-item" onclick="selectProduct('swedish meatball frozen meal')"><span class="product-display">Marie Callenders Swedish Meatballs Bowl Frozen Meal</span><span class="product-key">swedish meatball frozen meal</span></div>
 <div class="product-item" onclick="selectProduct('taco kit')"><span class="product-display">Old El Paso Stand n Stuff Taco Dinner Kit</span><span class="product-key">taco kit</span></div>
 <div class="product-item" onclick="selectProduct('tapioca pudding cups')"><span class="product-display">Swiss Miss Tapioca Pudding 4 Oz 6count</span><span class="product-key">tapioca pudding cups</span></div>
 <div class="product-item" onclick="selectProduct('tartar sauce')"><span class="product-display">Hy-Vee Tartar Sauce</span><span class="product-key">tartar sauce</span></div>
+<div class="product-item" onclick="selectProduct('that's my mom's salad dressing')"><span class="product-display">Hy Vee Thousand Island Dressing</span><span class="product-key">that's my mom's salad dressing</span></div>
 <div class="product-item" onclick="selectProduct('tomatoes')"><span class="product-display">Tomatoes on the Vine</span><span class="product-key">tomatoes</span></div>
 <div class="product-item" onclick="selectProduct('tomatoes 3')"><span class="product-display">Roma Tomatoes</span><span class="product-key">tomatoes 3</span></div>
 <div class="product-item" onclick="selectProduct('tropicana lite 50')"><span class="product-display">Tropicana Light No Pulp Orange Juice</span><span class="product-key">tropicana lite 50</span></div>
 <div class="product-item" onclick="selectProduct('turkey lunch meat')"><span class="product-display">Land O'Frost Premium Honey Smoked Turkey Breast</span><span class="product-key">turkey lunch meat</span></div>
+<div class="product-item" onclick="selectProduct('two boxes vanilla wafers')"><span class="product-display">Nabisco Nilla Wafers</span><span class="product-key">two boxes vanilla wafers</span></div>
+<div class="product-item" onclick="selectProduct('two dozen eggs')"><span class="product-display">Hy Vee Grade A Large Eggs</span><span class="product-key">two dozen eggs</span></div>
 <div class="product-item" onclick="selectProduct('very lean ground beef')"><span class="product-display">93% Lean 7% Fat Fresh Ground Beef</span><span class="product-key">very lean ground beef</span></div>
 <div class="product-item" onclick="selectProduct('watermelon')"><span class="product-display">Watermelon Wedges With Skin</span><span class="product-key">watermelon</span></div>
 <div class="product-item" onclick="selectProduct('white vinegar')"><span class="product-display">Hyvee White Distilled Vinegar</span><span class="product-key">white vinegar</span></div>
@@ -916,7 +564,12 @@
     <script>
         let currentRow = null;
         const allProducts = [
+    { "key": "1 lb salted butter", "display": "Hy Vee Sweet Cream Salted Butter Quarters" },
+    { "key": "409 spray", "display": "Formula 409 Multi Surface Original Cleaner Spray" },
     { "key": "5 bananas", "display": "Fresh Chiquita Bananas" },
+    { "key": "8 oz package cream cheese", "display": "Hy Vee Cream Cheese" },
+    { "key": "american cheese slices", "display": "Hy Vee Singles American Cheese 24ct" },
+    { "key": "angel hair spaghetti", "display": "Hy Vee Angel Hair" },
     { "key": "asian salad kit", "display": "Dole Chopped Sesame Asian" },
     { "key": "avocado", "display": "Hass Avocados" },
     { "key": "bag of potatoes", "display": "Green Giant Red Potatoes" },
@@ -938,12 +591,15 @@
     { "key": "cranberry juice free bottles", "display": "Ocean Spray Diet Cranberry Juice Drink" },
     { "key": "cream of mushroom soup", "display": "Campbells 25 Less Sodium Cream Of Mushroom Condensed Soup" },
     { "key": "dave's bread whole wheat", "display": "Dave's Killer Bread Good Seed Whole Grain Organic Bread" },
+    { "key": "dawn dish soap", "display": "Dawn Platinum Powerwash Dish Spray Dish Soap Fresh Scent Refill" },
     { "key": "fresca bottles", "display": "Fresca Grapefruit Citrus Soda 6pk" },
     { "key": "fresh bass", "display": "Fresh USA Farm Raised Rainbow Trout Fillets" },
     { "key": "fresh lemon", "display": "Kings River Lemons Premium Citrus" },
+    { "key": "fresh mushrooms", "display": "Highline Sliced White Mushrooms" },
     { "key": "fresh thyme", "display": "Ernessi Farms Thyme" },
     { "key": "froxen spagheet and meat sauce dinner", "display": "Stouffers Spaghetti With Meat Sauce Frozen Meal" },
     { "key": "frozen lima beans", "display": "Hy-Vee Baby Lima Beans Fresh Steam" },
+    { "key": "frozen mixed vegetables", "display": "Birds Eye Steamfresh Mixed Vegetables Frozen Vegetables 10 Oz Bag" },
     { "key": "frozen pizza", "display": "Brew Pub Lotzza Motzza Pepperoni Pizza" },
     { "key": "frozen shrimp alfredo", "display": "Lean Cuisine Protein Kick Shrimp Alfredo" },
     { "key": "frozen shrimp cocktail", "display": "Fish Market Shrimp Platter with Cocktail Sauce" },
@@ -952,10 +608,13 @@
     { "key": "gallon sized ziplocs", "display": "Ziploc Gallon Storage Slider Bags 12 Ea" },
     { "key": "garlic", "display": "Jumbo Garlic" },
     { "key": "glasstop cleaner", "display": "Bar Keepers Friend Cooktop Cleaner" },
+    { "key": "grape juice", "display": "Old Orchard Healthy Balance Diet Grape Juice Cocktail" },
     { "key": "half and half", "display": "Search" },
+    { "key": "havarti cheese slices", "display": "Hy Vee Sliced Havarti Cheese" },
     { "key": "healthy orchard grape 2x", "display": "Old Orchard Healthy Balance Diet Grape Juice Cocktail" },
     { "key": "honeydew", "display": "Honeydew Ready To Eat" },
     { "key": "hungry man meatloaf frozen meal", "display": "Boston Market Meatloaf" },
+    { "key": "iceberg lettuce", "display": "Dole Iceberg Lettuce" },
     { "key": "large chunk chocolate chip coookies", "display": "Chips Ahoy Chunky Chocolate Chip Cookies Family Size" },
     { "key": "lemonaide", "display": "Minute Maid Sugar Lemonade Juice" },
     { "key": "lightly salted chips", "display": "Lay's Lightly Salted Classic Potato Chips" },
@@ -963,6 +622,7 @@
     { "key": "miralax laxative large bottle", "display": "Miralax 30 Once Daily Doses Powder Laxative" },
     { "key": "one box frozen shrimp alfredo dinner", "display": "Lean Cuisine Protein Kick Shrimp Alfredo" },
     { "key": "one container sugar-free cool whip", "display": "Hy-Vee Whipped Topping Zero Sugar" },
+    { "key": "one kimbasa", "display": "Hillshire Farm Polska Kielbasa Smoked Sausage 14 Oz" },
     { "key": "orange", "display": "Navel Oranges Large" },
     { "key": "pack of dish sponges", "display": "Scotch-Brite Heavy Duty Scrub Sponges" },
     { "key": "pickled herring", "display": "Fish Market Herring Fillets In Wine Sauce" },
@@ -972,20 +632,27 @@
     { "key": "saltines", "display": "Premium Saltine Crackers Original" },
     { "key": "short carrots", "display": "Grimmway Baby Carrots" },
     { "key": "shredded cheddar cheese", "display": "Hyvee Finely Shredded Mild Cheddar Natural Cheese" },
+    { "key": "shredded cheddar cheese sharp", "display": "Hy Vee Shredded Sharp Cheddar Cheese" },
     { "key": "shredded lettuce", "display": "Dole Shredded Iceberg Lettuce" },
+    { "key": "silver polish colon 1 wright''s", "display": "Twinkle Silver Polish Kit 4375 Oz" },
     { "key": "small bag of yellow onions (maple and bacon variety)", "display": "Yellow Onions" },
     { "key": "sociables crackers two boxes", "display": "Sociables Flavor Originals Sociables Baked Savory Crackers Party Snacks" },
     { "key": "sour cream two small containers", "display": "Hyvee Light Sour Cream" },
+    { "key": "spaghetti sauce", "display": "Gustare Vita Tomato Basil Pasta Sauce" },
+    { "key": "spinach, fresh", "display": "Josies Organics Organic Baby Spinach" },
     { "key": "splenda packages large box", "display": "Splenda No Calorie Sweetener Individual Packets" },
     { "key": "stuffing mix", "display": "Pepperidge Farm Herb Seasoned Classic Stuffing" },
     { "key": "swedish meatball frozen meal", "display": "Marie Callenders Swedish Meatballs Bowl Frozen Meal" },
     { "key": "taco kit", "display": "Old El Paso Stand n Stuff Taco Dinner Kit" },
     { "key": "tapioca pudding cups", "display": "Swiss Miss Tapioca Pudding 4 Oz 6count" },
     { "key": "tartar sauce", "display": "Hy-Vee Tartar Sauce" },
+    { "key": "that's my mom's salad dressing", "display": "Hy Vee Thousand Island Dressing" },
     { "key": "tomatoes", "display": "Tomatoes on the Vine" },
     { "key": "tomatoes 3", "display": "Roma Tomatoes" },
     { "key": "tropicana lite 50", "display": "Tropicana Light No Pulp Orange Juice" },
     { "key": "turkey lunch meat", "display": "Land O'Frost Premium Honey Smoked Turkey Breast" },
+    { "key": "two boxes vanilla wafers", "display": "Nabisco Nilla Wafers" },
+    { "key": "two dozen eggs", "display": "Hy Vee Grade A Large Eggs" },
     { "key": "very lean ground beef", "display": "93% Lean 7% Fat Fresh Ground Beef" },
     { "key": "watermelon", "display": "Watermelon Wedges With Skin" },
     { "key": "white vinegar", "display": "Hyvee White Distilled Vinegar" },
@@ -1304,6 +971,20 @@
         // Proceed to Hy-Vee search phase (kept for backward compatibility)
         async function proceedToHyveeSearch() {
             return navigateToPhase2();
+        }
+        
+        // Navigate to Phase 3 (Add to Cart)
+        async function navigateToPhase3() {
+            const btn = document.getElementById('phase3-btn');
+            btn.classList.add('loading');
+            btn.textContent = '⏳ Loading...';
+            
+            // Redirect to the new dashboard
+            const params = new URLSearchParams({
+                list_name: listName,
+                repo_root: repoRoot
+            });
+            window.location.href = 'http://127.0.0.1:8766/phase3?' + params.toString();
         }
         
         // Reset all selections

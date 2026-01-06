@@ -170,6 +170,7 @@ def ensure_logged_in(page: Any, *, email: str | None = None, password: str | Non
             'a:has-text("Log In"), button:has-text("Log In"), a:has-text("Log in"), button:has-text("Log in")'
         ).first
         if login_control.is_visible():
+            print("  Clicking 'Log In' button...")
             login_control.click(timeout=5000)
             time.sleep(3)  # Give Keycloak redirect time
     except Exception:
@@ -188,12 +189,14 @@ def ensure_logged_in(page: Any, *, email: str | None = None, password: str | Non
     try:
         page.wait_for_selector(username_selectors, state="visible", timeout=5000)
         
+        print("  Filling login credentials...")
         page.locator(username_selectors).first.click()
         page.locator(username_selectors).first.fill(email)
         
         page.locator(password_selectors).first.click()
         page.locator(password_selectors).first.fill(password)
         
+        print("  Submitting login form...")
         page.locator(submit_selectors).first.click()
         time.sleep(2)
     except Exception:
@@ -459,7 +462,7 @@ def ensure_items_in_cart(
     page: Any,
     *,
     products_path: "Any",
-    items: list[str],
+    items: list[str | dict[str, Any]],
     unavailable_path: "Any | None" = None,
     max_attempts: int = 2,
 ) -> None:
@@ -495,17 +498,26 @@ def ensure_items_in_cart(
         
         # Wait for content to render
         try:
-            page.wait_for_selector('text="Order Summary"', timeout=30000)
-        except:
-             pass
+            # Check for empty cart first (fast fail)
+            empty_msg = page.query_selector('text="Your cart is empty"')
+            if empty_msg:
+                print("  Cart is empty (detected early).")
+                cart_html = ""
+            else:
+                # If not empty, wait for Order Summary
+                page.wait_for_selector('text="Order Summary"', timeout=5000)
+                
+                # Scroll to bottom to ensure all items are in the HTML (virtualization)
+                for _ in range(5):
+                    page.keyboard.press("End")
+                    time.sleep(1)
+                    
+                cart_html = page.content()
+                print(f"  Cart HTML loaded ({len(cart_html)} chars).")
 
-        # Scroll to bottom to ensure all items are in the HTML (virtualization)
-        for _ in range(5):
-            page.keyboard.press("End")
-            time.sleep(1)
-            
-        cart_html = page.content()
-        print(f"  Cart HTML loaded ({len(cart_html)} chars).")
+        except Exception:
+            # If neither found, assume empty or error
+            cart_html = ""
         
     except Exception as e:
         print(f"  Warning: Could not scan cart ({e}). checks will default to 'not found'.")
@@ -517,15 +529,22 @@ def ensure_items_in_cart(
 
     # First pass: Filter items by checking for their ID in the HTML
     for item in items:
-        key = library.normalize_key(item)
-        mapping = products.get(key)
+        if isinstance(item, dict):
+            norm_name = item.get("normalized", "")
+            orig_name = item.get("original", "")
+        else:
+            norm_name = library.normalize_key(item)
+            orig_name = item
+
+        resolved = library.resolve_product(products, norm_name)
+        mapping = resolved[1] if resolved else None
+
         if not mapping:
-            # We fail later
-            pass 
+           pass
         
         url = mapping.get("url", "") if mapping else ""
         pid = extract_product_id(url)
-        display_name = str(mapping.get("display_name") or item) if mapping else item
+        display_name = str(mapping.get("display_name") or orig_name) if mapping else orig_name
         
         # KEY CHECK: Is the ID in the HTML?
         if pid and pid in cart_html:
@@ -544,29 +563,28 @@ def ensure_items_in_cart(
 
     # Second pass: Process missing items
     for item in missing_items_to_process:
-        key = library.normalize_key(item)
-        mapping = products.get(key)
-        if not mapping:
-            raise GroceryError(
-                code=1,
-                short="Unknown/unmapped item",
-                context=f'Item "{item}" has no mapping in products.json',
-                next_step="Add mapping to products.json then re-run",
-            )
+        if isinstance(item, dict):
+            norm_name = item.get("normalized", "")
+            orig_name = item.get("original", "")
+        else:
+            norm_name = library.normalize_key(item)
+            orig_name = item
 
-        display_name = str(mapping.get("display_name") or item)
+        resolved = library.resolve_product(products, norm_name)
+        if not resolved:
+            print(f"  ⚠️ Warning: Skipping unknown item '{orig_name}' (Normalized: '{norm_name}'). Not mapped in products.json.")
+            continue
+        
+        key, mapping = resolved
+        display_name = str(mapping.get("display_name") or orig_name)
         product_url = mapping.get("url", "")
 
         if not product_url:
-            raise GroceryError(
-                code=1,
-                short="Missing product URL",
-                context=f'Item "{item}" has no URL in products.json',
-                next_step="Add the product URL to products.json then re-run",
-            )
+            print(f"  ⚠️ Warning: Skipping item '{orig_name}' -> '{key}'. No URL in products.json.")
+            continue
 
         # Navigate to product page and add to cart with verification
-        print(f"  Adding: {display_name}...")
+        print(f"  Processing '{orig_name}' -> Mapped to '{key}' ({display_name})...")
         
         success = False
         error_msg = ""
@@ -636,9 +654,17 @@ def ensure_items_in_cart(
         # Build list of expected token sets
         expected_token_sets = []
         for item in items:
-            key = library.normalize_key(item)
-            mapping = products.get(key)
-            name_to_use = mapping.get("display_name", "") if mapping else item
+            if isinstance(item, dict):
+                norm = item.get("normalized", "")
+            else:
+                norm = library.normalize_key(item)
+            
+            resolved = library.resolve_product(products, norm)
+            if resolved:
+                name_to_use = resolved[1].get("display_name", "")
+            else:
+                name_to_use = norm
+
             expected_token_sets.append(get_tokens(name_to_use))
 
         unexpected_items = []

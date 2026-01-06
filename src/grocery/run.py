@@ -99,6 +99,11 @@ def main() -> int:
         action="store_true",
         help="Skip fuzzy matching phase and go straight to Hy-Vee product search for unmapped items",
     )
+    parser.add_argument(
+        "--ignore-unmapped",
+        action="store_true",
+        help="Ignore unmapped items and proceed with shopping for mapped items only (WARNING: will skip items!)",
+    )
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root)
@@ -198,34 +203,43 @@ def main() -> int:
                 
                 return 1
             else:
-                # Phase 2: Hy-Vee product search for truly new items
-                unmapped_html = _generate_unmapped_html(unmapped_items, repo_root, list_name=args.list_name)
-                
-                print(f"\n{'='*60}")
-                print(f"STEP 2: HY-VEE PRODUCT SEARCH")
-                print(f"{'='*60}")
-                print(f"Found {len(unmapped_items)} item(s) that need Hy-Vee product URLs.")
-                print(f"\n{'='*60}")
-                print(f"📋 Product search UI: {unmapped_html}")
-                print(f"   Open in browser: file://{unmapped_html}")
-                print(f"{'='*60}")
-                print(f"\nINSTRUCTIONS:")
-                print(f"  1. Click 🔍 to search Hy-Vee for each item")
-                print(f"  2. Paste product page URLs")
-                print(f"  3. Generate JSON and paste into:")
-                print(f"     data/products.json (under 'products')")
-                print(f"  4. Re-run this command")
-                print(f"{'='*60}\n")
-                
-                # Try to open the HTML file automatically
-                try:
-                    subprocess.run(["open", str(unmapped_html)], check=False)
-                except Exception:
-                    pass  # Silently fail if 'open' isn't available
-                
-                return 1
+                if args.ignore_unmapped:
+                    print(f"\n⚠️ WARNING: Ignoring {len(unmapped_items)} unmapped items as requested.")
+                    print("Proceeding with shopping for mapped items only...")
+                else:
+                    # Phase 2: Hy-Vee product search for truly new items
+                    unmapped_html = _generate_unmapped_html(unmapped_items, repo_root, list_name=args.list_name)
+                    
+                    print(f"\n{'='*60}")
+                    print(f"STEP 2: HY-VEE PRODUCT SEARCH")
+                    print(f"{'='*60}")
+                    print(f"Found {len(unmapped_items)} item(s) that need Hy-Vee product URLs.")
+                    print(f"\n{'='*60}")
+                    print(f"📋 Product search UI: {unmapped_html}")
+                    print(f"   Open in browser: file://{unmapped_html}")
+                    print(f"{'='*60}")
+                    print(f"\nINSTRUCTIONS:")
+                    print(f"  1. Click 🔍 to search Hy-Vee for each item")
+                    print(f"  2. Paste product page URLs")
+                    print(f"  3. Generate JSON and paste into:")
+                    print(f"     data/products.json (under 'products')")
+                    print(f"  4. Re-run this command")
+                    print(f"{'='*60}\n")
+                    
+                    # Try to open the HTML file automatically
+                    try:
+                        subprocess.run(["open", str(unmapped_html)], check=False)
+                    except Exception:
+                        pass  # Silently fail if 'open' isn't available
+                    
+                    return 1
 
-        print(f"All {len(normalized_names)} items mapped. Proceeding to cart...")
+        if args.ignore_unmapped and unmapped_names:
+            # Filter out unmapped items
+            normalized_names = [n for n in normalized_names if n not in unmapped_names]
+            print(f"Shopping for {len(normalized_names)} mapped items (skipping {len(unmapped_names)}).")
+        else:
+            print(f"All {len(normalized_names)} items mapped. Proceeding to cart...")
 
         playwright = browser = page = None
         try:
@@ -238,7 +252,7 @@ def main() -> int:
             hyvee.ensure_items_in_cart(
                 page,
                 products_path=products_path,
-                items=normalized_names,
+                items=normalized,
                 unavailable_path=unavailable_path,
             )
             print("Cart update complete. Hard stop before checkout.")
@@ -281,9 +295,11 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
         search_url = build_search_url(item)
         # Escape HTML special characters and quotes for JS
         safe_item = item.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        normalized = item_obj.get("normalized", item)
         js_item = item.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
+        js_normalized = normalized.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
         rows.append(f'''
-        <tr data-item="{js_item}" data-status="pending">
+        <tr data-item="{js_normalized}" data-original="{js_item}" data-status="pending">
             <td class="row-num">{i+1}</td>
             <td class="item-name">{safe_item}</td>
             <td><a href="{search_url}" target="_blank" class="search-link">🔍</a></td>
@@ -356,6 +372,37 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
             background: #30363d;
             color: #c9d1d9;
         }}
+        .phase-btn.loading {{
+            opacity: 0.6;
+            cursor: wait;
+        }}
+        .generate-btn {{
+            padding: 10px 20px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }}
+        .generate-btn:hover {{ background: #2ea043; }}
+        .generate-btn:disabled {{ 
+            background: #30363d; 
+            cursor: wait; 
+            opacity: 0.6;
+        }}
+        .output-section {{
+            margin-top: 20px;
+            padding: 15px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            display: none;
+        }}
+        .output-section.visible {{ display: block; }}
+        .output-section h3 {{ color: #238636; margin-bottom: 10px; font-size: 18px; }}
+        .output-section p {{ margin: 8px 0; line-height: 1.6; }}
         .store-badge {{
             background: #da3633;
             padding: 6px 12px;
@@ -529,6 +576,9 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
             <button class="phase-btn active" onclick="return false;">
                 🔍 Phase 2: Hy-Vee Search
             </button>
+            <button class="phase-btn inactive" onclick="navigateToPhase3()" id="phase3-btn">
+                🛒 Phase 3: Add to Cart
+            </button>
         </div>
     </div>
     
@@ -559,32 +609,15 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
     </table>
     
     <div class="action-bar">
-        <button class="submit-btn" onclick="generateJSON()">📦 Generate All JSON</button>
+        <button class="generate-btn" onclick="updateListDetails()" id="update-btn">✨ Update List Details</button>
+        <span style="color: #8b949e; font-size: 12px; margin-left: 10px;">
+            (Adds products to products.json, handles Amazon/dupes/skips, refreshes page)
+        </span>
     </div>
     
     <div class="output-section" id="output-section">
-        <h3>✅ Product Mappings (paste into products.json)</h3>
-        <textarea class="json-output" id="json-output" readonly></textarea>
-        <button class="copy-btn" onclick="copyJSON()">📋 Copy to Clipboard</button>
-        
-        <div class="amazon-output" id="amazon-output" style="display:none">
-            <h4>📦 Items to move to Amazon list:</h4>
-            <div id="amazon-list"></div>
-        </div>
-        
-        <div class="dupe-output" id="dupe-output" style="display:none">
-            <h4>🔁 Duplicate items (will be removed from Google Tasks):</h4>
-            <div id="dupe-list"></div>
-            <div style="margin-top:8px;">
-                <code id="dupe-cmd" style="display:block;background:#0d1117;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;white-space:nowrap;"></code>
-                <button class="copy-btn" onclick="copyDupeCmd()" style="margin-top:4px;">📋 Copy Remove Command</button>
-            </div>
-        </div>
-        
-        <div class="skip-output" id="skip-output" style="display:none">
-            <h4>⏭️ Skipped items:</h4>
-            <div id="skip-list"></div>
-        </div>
+        <h3 id="output-title">⏳ Processing...</h3>
+        <div id="output-content"></div>
     </div>
     
     <script>
@@ -663,13 +696,17 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
             document.getElementById('dupe-count').textContent = document.querySelectorAll('tr[data-status="dupe"]').length;
         }}
         
-        function generateJSON() {{
+        // Update List Details - POST to backend like Phase 1
+        async function updateListDetails() {{
+            const btn = document.getElementById('update-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Updating...';
+            
             const rows = document.querySelectorAll('#items-body tr');
-            const mappings = [];
+            const products = [];
             const amazonItems = [];
             const dupeItems = [];
             const skipItems = [];
-            const timestamp = new Date().toISOString();
             
             rows.forEach(row => {{
                 const itemName = row.dataset.item;
@@ -699,54 +736,94 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
                 displayName = displayName.replace(/-/g, ' ').replace(/\\?.*$/, '').trim();
                 displayName = displayName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
                 
-                const qtyField = qty > 1 ? `\\n      "quantity": ${{qty}},` : "";
-                mappings.push(`    "${{itemName.toLowerCase()}}": {{
-      "product_id": "${{productId}}",
-      "url": "${{url.split('?')[0]}}",
-      "display_name": "${{displayName}}",${{qtyField}}
-      "original_requests": ["${{itemName}}"],
-      "added": "${{timestamp}}"
-    }}`);
+                products.push({{
+                    item_name: itemName.toLowerCase(),
+                    product_id: productId,
+                    url: url.split('?')[0],
+                    display_name: displayName,
+                    quantity: qty,
+                    original_request: row.dataset.original || itemName
+                }});
             }});
             
-            document.getElementById('json-output').value = mappings.join(',\\n') || '// No items mapped';
-            document.getElementById('output-section').classList.add('visible');
-            
-            if (amazonItems.length > 0) {{
-                document.getElementById('amazon-output').style.display = 'block';
-                document.getElementById('amazon-list').textContent = amazonItems.join('\\n');
+            try {{
+                const response = await fetch('http://127.0.0.1:8766/apply-phase2-mappings', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{
+                        repo_root: repoRoot,
+                        list_name: listName,
+                        products: products,
+                        amazon_items: amazonItems,
+                        dupe_items: dupeItems,
+                        skip_items: skipItems
+                    }})
+                }});
+                
+                if (!response.ok) {{
+                    throw new Error(`Server returned ${{response.status}}`);
+                }}
+                
+                const result = await response.json();
+                
+                // Show success
+                document.getElementById('output-section').classList.add('visible');
+                document.getElementById('output-title').textContent = '✅ Changes Applied Successfully!';
+                
+                let successHtml = `
+                    <div style="color: #7ee787; margin-bottom: 15px;">
+                        <p style="font-size: 15px; font-weight: 600; margin-bottom: 10px;">Summary:</p>
+                        <p>✓ Added <strong>${{products.length}}</strong> product(s) to products.json</p>
+                        ${{amazonItems.length > 0 ? `<p>✓ Moved <strong>${{amazonItems.length}}</strong> item(s) to Amazon list</p>` : ''}}
+                        ${{dupeItems.length > 0 ? `<p>✓ Removed <strong>${{dupeItems.length}}</strong> duplicate(s) from Google Tasks</p>` : ''}}
+                        ${{skipItems.length > 0 ? `<p>✓ Skipped <strong>${{skipItems.length}}</strong> item(s)</p>` : ''}}
+                    </div>
+                `;
+                
+                if (amazonItems.length > 0) {{
+                    successHtml += `
+                        <div style="margin-top: 15px; padding: 10px; background: #0d1117; border-radius: 6px;">
+                            <h4 style="color: #d29922; margin: 0 0 8px 0;">📦 Items moved to Amazon:</h4>
+                            <div style="color: #7ee787; font-size: 12px;">${{amazonItems.join('<br>')}}</div>
+                        </div>
+                    `;
+                }}
+                
+                successHtml += `
+                    <p style="color: #8b949e; font-size: 13px; margin-top: 20px;">
+                        Page will refresh automatically in 7 seconds to show updated list...
+                        <button onclick="window.location.reload();" style="background: transparent; border: 1px solid #30363d; color: #58a6ff; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; font-size: 12px;">Refresh Now</button>
+                    </p>
+                `;
+                
+                document.getElementById('output-content').innerHTML = successHtml;
+                
+                // Fade out mapped rows
+                rows.forEach(row => {{
+                    if (row.dataset.status === 'mapped') {{
+                        row.style.opacity = '0';
+                        row.style.transition = 'opacity 0.3s';
+                        setTimeout(() => row.style.display = 'none', 300);
+                    }}
+                }});
+                
+                // Auto-refresh
+                setTimeout(() => {{
+                    window.location.reload();
+                }}, 7000);
+                
+            }} catch (error) {{
+                document.getElementById('output-section').classList.add('visible');
+                document.getElementById('output-title').textContent = '❌ Error';
+                document.getElementById('output-content').innerHTML = `
+                    <p style="color: #f85149;">
+                        Failed to apply changes: ${{error.message}}
+                    </p>
+                `;
+            }} finally {{
+                btn.disabled = false;
+                btn.textContent = '✨ Update List Details';
             }}
-            if (dupeItems.length > 0) {{
-                document.getElementById('dupe-output').style.display = 'block';
-                document.getElementById('dupe-list').textContent = dupeItems.join('\\n');
-                // Generate remove command
-                const removeArgs = dupeItems.map(i => `--remove-item "${{i}}"`).join(' ');
-                const cmd = `python -m grocery.run --list-name "Groceries" ${{removeArgs}}`;
-                document.getElementById('dupe-cmd').textContent = cmd;
-            }}
-            if (skipItems.length > 0) {{
-                document.getElementById('skip-output').style.display = 'block';
-                document.getElementById('skip-list').textContent = skipItems.join('\\n');
-            }}
-            
-            document.getElementById('output-section').scrollIntoView({{ behavior: 'smooth' }});
-        }}
-        
-        function copyJSON() {{
-            const textarea = document.getElementById('json-output');
-            navigator.clipboard.writeText(textarea.value).then(() => {{
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = '✓ Copied!';
-                setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
-            }});
-        }}
-        
-        function copyDupeCmd() {{
-            const cmd = document.getElementById('dupe-cmd').textContent;
-            navigator.clipboard.writeText(cmd).then(() => {{
-                event.target.textContent = '✓ Copied!';
-                setTimeout(() => event.target.textContent = '📋 Copy Remove Command', 2000);
-            }});
         }}
         
         // Navigate to Phase 1 (Fuzzy Match)
@@ -759,6 +836,20 @@ def _generate_unmapped_html(unmapped: list[dict], repo_root: Path, list_name: st
             
             // Redirect to fuzzy match UI
             window.location.href = 'http://127.0.0.1:8766/data/fuzzy_match_items.html';
+        }}
+        
+        // Navigate to Phase 3 (Add to Cart)
+        async function navigateToPhase3() {{
+            const btn = document.getElementById('phase3-btn');
+            btn.classList.add('loading');
+            btn.textContent = '⏳ Loading...';
+            
+            // Redirect to the new dashboard
+            const params = new URLSearchParams({{
+                list_name: listName,
+                repo_root: repoRoot
+            }});
+            window.location.href = 'http://127.0.0.1:8766/phase3?' + params.toString();
         }}
         
         // Store repo root and list name for navigation

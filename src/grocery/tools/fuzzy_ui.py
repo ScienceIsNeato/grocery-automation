@@ -49,6 +49,7 @@ def generate_fuzzy_match_html(
         # Escape for HTML/JS
         safe_item = item.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
         js_item = item.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
+        js_normalized = normalized.replace("\\", "\\\\").replace("'", "\\'").replace('"', '\\"')
         
         # Build fuzzy match buttons
         match_buttons = []
@@ -71,7 +72,7 @@ def generate_fuzzy_match_html(
             match_buttons.append('<button class="match-btn empty" disabled>—</button>')
         
         rows.append(f'''
-        <tr data-item="{js_item}" data-original="{js_item}" data-status="pending" data-quantity="{quantity}">
+        <tr data-item="{js_normalized}" data-original="{js_item}" data-normalized="{js_normalized}" data-status="pending" data-quantity="{quantity}">
             <td class="row-num">{i+1}</td>
             <td class="item-name"><span class="editable-item" contenteditable="true" spellcheck="false" onblur="trackEdit(this)">{safe_item}</span></td>
             <td class="qty-cell"><input type="number" class="qty-input" value="{quantity}" min="1" max="99" onchange="updateQuantity(this)" /></td>
@@ -157,6 +158,10 @@ def generate_fuzzy_match_html(
         .phase-btn.inactive:hover {{
             background: #30363d;
             color: #c9d1d9;
+        }}
+        .phase-btn.loading {{
+            opacity: 0.6;
+            cursor: wait;
         }}
         .phase-btn.loading {{
             opacity: 0.6;
@@ -447,6 +452,9 @@ def generate_fuzzy_match_html(
             <button class="phase-btn inactive" onclick="navigateToPhase2()" id="phase2-btn">
                 🔍 Phase 2: Hy-Vee Search
             </button>
+            <button class="phase-btn inactive" onclick="navigateToPhase3()" id="phase3-btn">
+                🛒 Phase 3: Add to Cart
+            </button>
         </div>
     </div>
     
@@ -521,7 +529,7 @@ def generate_fuzzy_match_html(
                 row.dataset.edited = 'true';
                 element.classList.add('edited');
             }} else {{
-                row.dataset.item = original;
+                row.dataset.item = row.dataset.normalized;
                 row.dataset.edited = 'false';
                 element.classList.remove('edited');
             }}
@@ -816,6 +824,20 @@ def generate_fuzzy_match_html(
         // Proceed to Hy-Vee search phase (kept for backward compatibility)
         async function proceedToHyveeSearch() {{
             return navigateToPhase2();
+        }}
+        
+        // Navigate to Phase 3 (Add to Cart)
+        async function navigateToPhase3() {{
+            const btn = document.getElementById('phase3-btn');
+            btn.classList.add('loading');
+            btn.textContent = '⏳ Loading...';
+            
+            // Redirect to the new dashboard
+            const params = new URLSearchParams({{
+                list_name: listName,
+                repo_root: repoRoot
+            }});
+            window.location.href = 'http://127.0.0.1:8766/phase3?' + params.toString();
         }}
         
         // Reset all selections

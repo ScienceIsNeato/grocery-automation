@@ -57,6 +57,31 @@ def lookup(products_path: Path, item_name: str) -> dict[str, Any] | None:
     return None
 
 
+def resolve_product(products: dict[str, Any], item_name: str) -> tuple[str, dict[str, Any]] | None:
+    """
+    Resolve a product from the loaded products dictionary.
+    Returns (product_key, product_data) or None.
+    
+    Checks direct key and original_requests aliases.
+    """
+    normalized = normalize_key(item_name)
+    
+    # 1. Direct Key Match
+    if normalized in products:
+        return normalized, products[normalized]
+    
+    # 2. Alias Match (original_requests)
+    for key, data in products.items():
+        aliases = data.get("original_requests", [])
+        # Optimization: Normalize aliases once? No, dictionary is robust.
+        # We process one item at a time, this loop is fast enough for <1000 items.
+        for req in aliases:
+            if normalize_key(req) == normalized:
+                return key, data
+                
+    return None
+
+
 def add_mapping(
     products_path: Path,
     *,

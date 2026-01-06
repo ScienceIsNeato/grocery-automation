@@ -56,6 +56,37 @@
             background: #30363d;
             color: #c9d1d9;
         }
+        .phase-btn.loading {
+            opacity: 0.6;
+            cursor: wait;
+        }
+        .generate-btn {
+            padding: 10px 20px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .generate-btn:hover { background: #2ea043; }
+        .generate-btn:disabled { 
+            background: #30363d; 
+            cursor: wait; 
+            opacity: 0.6;
+        }
+        .output-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            display: none;
+        }
+        .output-section.visible { display: block; }
+        .output-section h3 { color: #238636; margin-bottom: 10px; font-size: 18px; }
+        .output-section p { margin: 8px 0; line-height: 1.6; }
         .store-badge {
             background: #da3633;
             padding: 6px 12px;
@@ -229,11 +260,14 @@
             <button class="phase-btn active" onclick="return false;">
                 🔍 Phase 2: Hy-Vee Search
             </button>
+            <button class="phase-btn inactive" onclick="navigateToPhase3()" id="phase3-btn">
+                🛒 Phase 3: Add to Cart
+            </button>
         </div>
     </div>
     
     <div class="stats">
-        <span class="stat">Total: <strong>24</strong></span>
+        <span class="stat">Total: <strong>3</strong></span>
         <span class="stat">Mapped: <strong id="mapped-count">0</strong></span>
         <span class="stat">Skipped: <strong id="skipped-count">0</strong></span>
         <span class="stat">Amazon: <strong id="amazon-count">0</strong></span>
@@ -269,36 +303,8 @@
             </td>
             <td class="status-cell">⏳</td>
         </tr>
-        <tr data-item="American cheese slices" data-status="pending">
-            <td class="row-num">2</td>
-            <td class="item-name">American cheese slices</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=American+cheese+slices" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Two boxes vanilla wafers" data-status="pending">
-            <td class="row-num">3</td>
-            <td class="item-name">Two boxes vanilla wafers</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Two+boxes+vanilla+wafers" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
         <tr data-item="Cantaloupe" data-status="pending">
-            <td class="row-num">4</td>
+            <td class="row-num">2</td>
             <td class="item-name">Cantaloupe</td>
             <td><a href="https://www.hy-vee.com/aisles-online/search?search=Cantaloupe" target="_blank" class="search-link">🔍</a></td>
             <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
@@ -311,276 +317,10 @@
             </td>
             <td class="status-cell">⏳</td>
         </tr>
-        <tr data-item="Grape juice free bottles" data-status="pending">
-            <td class="row-num">5</td>
-            <td class="item-name">Grape juice free bottles</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Grape+juice+free+bottles" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="That\'s my mom\'s salad dressing" data-status="pending">
-            <td class="row-num">6</td>
-            <td class="item-name">That's my mom's salad dressing</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=That's+my+mom's+salad+dressing" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="18 Oz package cream cheese" data-status="pending">
-            <td class="row-num">7</td>
-            <td class="item-name">18 Oz package cream cheese</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=18+Oz+package+cream+cheese" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="18" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Havarti cheese slices" data-status="pending">
-            <td class="row-num">8</td>
-            <td class="item-name">Havarti cheese slices</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Havarti+cheese+slices" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Shredded cheddar cheese Sharp" data-status="pending">
-            <td class="row-num">9</td>
-            <td class="item-name">Shredded cheddar cheese Sharp</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Shredded+cheddar+cheese+Sharp" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Fresh mushrooms" data-status="pending">
-            <td class="row-num">10</td>
-            <td class="item-name">Fresh mushrooms</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Fresh+mushrooms" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Spaghetti sauce" data-status="pending">
-            <td class="row-num">11</td>
-            <td class="item-name">Spaghetti sauce</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Spaghetti+sauce" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Angel hair spaghetti" data-status="pending">
-            <td class="row-num">12</td>
-            <td class="item-name">Angel hair spaghetti</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Angel+hair+spaghetti" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Frozen mixed vegetables" data-status="pending">
-            <td class="row-num">13</td>
-            <td class="item-name">Frozen mixed vegetables</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Frozen+mixed+vegetables" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Frozen corn" data-status="pending">
-            <td class="row-num">14</td>
-            <td class="item-name">Frozen corn</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Frozen+corn" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="One kimbasa" data-status="pending">
-            <td class="row-num">15</td>
-            <td class="item-name">One kimbasa</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=One+kimbasa" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="1 lb salted butter" data-status="pending">
-            <td class="row-num">16</td>
-            <td class="item-name">1 lb salted butter</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=1+lb+salted+butter" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Spinach, fresh" data-status="pending">
-            <td class="row-num">17</td>
-            <td class="item-name">Spinach, fresh</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Spinach,+fresh" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Iceberg lettuce" data-status="pending">
-            <td class="row-num">18</td>
-            <td class="item-name">Iceberg lettuce</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Iceberg+lettuce" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Chicken thighs" data-status="pending">
-            <td class="row-num">19</td>
-            <td class="item-name">Chicken thighs</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Chicken+thighs" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
         <tr data-item="C9bb salllàd kit" data-status="pending">
-            <td class="row-num">20</td>
+            <td class="row-num">3</td>
             <td class="item-name">C9bb salllàd kit</td>
             <td><a href="https://www.hy-vee.com/aisles-online/search?search=C9bb+salllàd+kit" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="409 spray" data-status="pending">
-            <td class="row-num">21</td>
-            <td class="item-name">409 spray</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=409+spray" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="409" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Dawn dish soap" data-status="pending">
-            <td class="row-num">22</td>
-            <td class="item-name">Dawn dish soap</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Dawn+dish+soap" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="bag storage clips" data-status="pending">
-            <td class="row-num">23</td>
-            <td class="item-name">bag storage clips</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=bag+storage+clips" target="_blank" class="search-link">🔍</a></td>
-            <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
-            <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
-            <td class="preview-cell"><div class="preview"></div></td>
-            <td class="actions">
-                <button class="skip-btn" onclick="markSkip(this)" title="Skip this item">⏭️</button>
-                <button class="dupe-btn" onclick="markDupe(this)" title="Duplicate item">🔁</button>
-                <button class="amazon-btn" onclick="markAmazon(this)" title="Move to Amazon list">📦</button>
-            </td>
-            <td class="status-cell">⏳</td>
-        </tr>
-        <tr data-item="Silver polish colon 1 wright\'\'s" data-status="pending">
-            <td class="row-num">24</td>
-            <td class="item-name">Silver polish colon 1 wright''s</td>
-            <td><a href="https://www.hy-vee.com/aisles-online/search?search=Silver+polish+colon+1+wright''s" target="_blank" class="search-link">🔍</a></td>
             <td class="url-cell"><input type="text" class="url-input" placeholder="Paste URL..." /></td>
             <td class="qty-cell"><input type="number" class="qty-input" value="1" min="1" max="99" /></td>
             <td class="preview-cell"><div class="preview"></div></td>
@@ -595,32 +335,15 @@
     </table>
     
     <div class="action-bar">
-        <button class="submit-btn" onclick="generateJSON()">📦 Generate All JSON</button>
+        <button class="generate-btn" onclick="updateListDetails()" id="update-btn">✨ Update List Details</button>
+        <span style="color: #8b949e; font-size: 12px; margin-left: 10px;">
+            (Adds products to products.json, handles Amazon/dupes/skips, refreshes page)
+        </span>
     </div>
     
     <div class="output-section" id="output-section">
-        <h3>✅ Product Mappings (paste into products.json)</h3>
-        <textarea class="json-output" id="json-output" readonly></textarea>
-        <button class="copy-btn" onclick="copyJSON()">📋 Copy to Clipboard</button>
-        
-        <div class="amazon-output" id="amazon-output" style="display:none">
-            <h4>📦 Items to move to Amazon list:</h4>
-            <div id="amazon-list"></div>
-        </div>
-        
-        <div class="dupe-output" id="dupe-output" style="display:none">
-            <h4>🔁 Duplicate items (will be removed from Google Tasks):</h4>
-            <div id="dupe-list"></div>
-            <div style="margin-top:8px;">
-                <code id="dupe-cmd" style="display:block;background:#0d1117;padding:8px;border-radius:4px;font-size:11px;overflow-x:auto;white-space:nowrap;"></code>
-                <button class="copy-btn" onclick="copyDupeCmd()" style="margin-top:4px;">📋 Copy Remove Command</button>
-            </div>
-        </div>
-        
-        <div class="skip-output" id="skip-output" style="display:none">
-            <h4>⏭️ Skipped items:</h4>
-            <div id="skip-list"></div>
-        </div>
+        <h3 id="output-title">⏳ Processing...</h3>
+        <div id="output-content"></div>
     </div>
     
     <script>
@@ -699,13 +422,17 @@
             document.getElementById('dupe-count').textContent = document.querySelectorAll('tr[data-status="dupe"]').length;
         }
         
-        function generateJSON() {
+        // Update List Details - POST to backend like Phase 1
+        async function updateListDetails() {
+            const btn = document.getElementById('update-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Updating...';
+            
             const rows = document.querySelectorAll('#items-body tr');
-            const mappings = [];
+            const products = [];
             const amazonItems = [];
             const dupeItems = [];
             const skipItems = [];
-            const timestamp = new Date().toISOString();
             
             rows.forEach(row => {
                 const itemName = row.dataset.item;
@@ -735,54 +462,94 @@
                 displayName = displayName.replace(/-/g, ' ').replace(/\?.*$/, '').trim();
                 displayName = displayName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
                 
-                const qtyField = qty > 1 ? `\n      "quantity": ${qty},` : "";
-                mappings.push(`    "${itemName.toLowerCase()}": {
-      "product_id": "${productId}",
-      "url": "${url.split('?')[0]}",
-      "display_name": "${displayName}",${qtyField}
-      "original_requests": ["${itemName}"],
-      "added": "${timestamp}"
-    }`);
+                products.push({
+                    item_name: itemName.toLowerCase(),
+                    product_id: productId,
+                    url: url.split('?')[0],
+                    display_name: displayName,
+                    quantity: qty,
+                    original_request: itemName
+                });
             });
             
-            document.getElementById('json-output').value = mappings.join(',\n') || '// No items mapped';
-            document.getElementById('output-section').classList.add('visible');
-            
-            if (amazonItems.length > 0) {
-                document.getElementById('amazon-output').style.display = 'block';
-                document.getElementById('amazon-list').textContent = amazonItems.join('\n');
+            try {
+                const response = await fetch('http://127.0.0.1:8766/apply-phase2-mappings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        repo_root: repoRoot,
+                        list_name: listName,
+                        products: products,
+                        amazon_items: amazonItems,
+                        dupe_items: dupeItems,
+                        skip_items: skipItems
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Show success
+                document.getElementById('output-section').classList.add('visible');
+                document.getElementById('output-title').textContent = '✅ Changes Applied Successfully!';
+                
+                let successHtml = `
+                    <div style="color: #7ee787; margin-bottom: 15px;">
+                        <p style="font-size: 15px; font-weight: 600; margin-bottom: 10px;">Summary:</p>
+                        <p>✓ Added <strong>${products.length}</strong> product(s) to products.json</p>
+                        ${amazonItems.length > 0 ? `<p>✓ Moved <strong>${amazonItems.length}</strong> item(s) to Amazon list</p>` : ''}
+                        ${dupeItems.length > 0 ? `<p>✓ Removed <strong>${dupeItems.length}</strong> duplicate(s) from Google Tasks</p>` : ''}
+                        ${skipItems.length > 0 ? `<p>✓ Skipped <strong>${skipItems.length}</strong> item(s)</p>` : ''}
+                    </div>
+                `;
+                
+                if (amazonItems.length > 0) {
+                    successHtml += `
+                        <div style="margin-top: 15px; padding: 10px; background: #0d1117; border-radius: 6px;">
+                            <h4 style="color: #d29922; margin: 0 0 8px 0;">📦 Items moved to Amazon:</h4>
+                            <div style="color: #7ee787; font-size: 12px;">${amazonItems.join('<br>')}</div>
+                        </div>
+                    `;
+                }
+                
+                successHtml += `
+                    <p style="color: #8b949e; font-size: 13px; margin-top: 20px;">
+                        Page will refresh automatically in 7 seconds to show updated list...
+                        <button onclick="window.location.reload();" style="background: transparent; border: 1px solid #30363d; color: #58a6ff; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 10px; font-size: 12px;">Refresh Now</button>
+                    </p>
+                `;
+                
+                document.getElementById('output-content').innerHTML = successHtml;
+                
+                // Fade out mapped rows
+                rows.forEach(row => {
+                    if (row.dataset.status === 'mapped') {
+                        row.style.opacity = '0';
+                        row.style.transition = 'opacity 0.3s';
+                        setTimeout(() => row.style.display = 'none', 300);
+                    }
+                });
+                
+                // Auto-refresh
+                setTimeout(() => {
+                    window.location.reload();
+                }, 7000);
+                
+            } catch (error) {
+                document.getElementById('output-section').classList.add('visible');
+                document.getElementById('output-title').textContent = '❌ Error';
+                document.getElementById('output-content').innerHTML = `
+                    <p style="color: #f85149;">
+                        Failed to apply changes: ${error.message}
+                    </p>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ Update List Details';
             }
-            if (dupeItems.length > 0) {
-                document.getElementById('dupe-output').style.display = 'block';
-                document.getElementById('dupe-list').textContent = dupeItems.join('\n');
-                // Generate remove command
-                const removeArgs = dupeItems.map(i => `--remove-item "${i}"`).join(' ');
-                const cmd = `python -m grocery.run --list-name "Groceries" ${removeArgs}`;
-                document.getElementById('dupe-cmd').textContent = cmd;
-            }
-            if (skipItems.length > 0) {
-                document.getElementById('skip-output').style.display = 'block';
-                document.getElementById('skip-list').textContent = skipItems.join('\n');
-            }
-            
-            document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function copyJSON() {
-            const textarea = document.getElementById('json-output');
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = '✓ Copied!';
-                setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
-            });
-        }
-        
-        function copyDupeCmd() {
-            const cmd = document.getElementById('dupe-cmd').textContent;
-            navigator.clipboard.writeText(cmd).then(() => {
-                event.target.textContent = '✓ Copied!';
-                setTimeout(() => event.target.textContent = '📋 Copy Remove Command', 2000);
-            });
         }
         
         // Navigate to Phase 1 (Fuzzy Match)
@@ -795,6 +562,20 @@
             
             // Redirect to fuzzy match UI
             window.location.href = 'http://127.0.0.1:8766/data/fuzzy_match_items.html';
+        }
+        
+        // Navigate to Phase 3 (Add to Cart)
+        async function navigateToPhase3() {
+            const btn = document.getElementById('phase3-btn');
+            btn.classList.add('loading');
+            btn.textContent = '⏳ Loading...';
+            
+            // Redirect to the new dashboard
+            const params = new URLSearchParams({
+                list_name: listName,
+                repo_root: repoRoot
+            });
+            window.location.href = 'http://127.0.0.1:8766/phase3?' + params.toString();
         }
         
         // Store repo root and list name for navigation

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Automation - Phase 3</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --border-color: #30363d;
+            --header-bg: #161b22;
+            --btn-primary: #238636;
+            --btn-primary-hover: #2ea043;
+            --btn-danger: #da3633;
+            --btn-danger-hover: #b62324;
+            --console-bg: #000000;
+            --console-text: #00ff00;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .phase-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .phase-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .phase-btn.active {
+            background: #8250df;
+            color: white;
+        }
+
+        .phase-btn.inactive {
+            background: #21262d;
+            color: #8b949e;
+            border: 1px solid #30363d;
+        }
+
+        .phase-btn.inactive:hover {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #30363d;
+            color: #8b949e;
+        }
+
+        .status-badge.running {
+            background: #1f6feb;
+            color: white;
+        }
+
+        .status-badge.success {
+            background: #238636;
+            color: white;
+        }
+
+        .status-badge.error {
+            background: #da3633;
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(27, 31, 35, 0.15);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #start-btn {
+            background-color: var(--btn-primary);
+            color: white;
+            border: none;
+        }
+
+        #start-btn:hover:not(:disabled) {
+            background-color: var(--btn-primary-hover);
+        }
+
+        #start-btn:disabled {
+            background-color: #23863680;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #stop-btn {
+            background-color: var(--btn-danger);
+            color: white;
+            border: none;
+        }
+
+        #stop-btn:hover:not(:disabled) {
+            background-color: var(--btn-danger-hover);
+        }
+
+        #stop-btn:disabled {
+            background-color: #da363380;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .console-window {
+            flex: 1;
+            background: var(--console-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--console-text);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Scrollbar styling */
+        .console-window::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .console-window::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        .console-window::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 5px;
+        }
+
+        .log-line {
+            margin: 0;
+        }
+
+        .log-error {
+            color: #ff6b6b;
+        }
+
+        .log-success {
+            color: #7ee787;
+            font-weight: bold;
+        }
+
+        .log-info {
+            color: #58a6ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Phase 3: Automated Shopping</h1>
+        <div class="phase-nav">
+            <button class="phase-btn inactive" onclick="window.location.href='/data/fuzzy_match_items.html'">
+                🧠 Phase 1: Match Existing
+            </button>
+            <button class="phase-btn inactive" onclick="window.location.href='/data/unmapped_items.html'">
+                🔍 Phase 2: Hy-Vee Search
+            </button>
+            <button class="phase-btn active" onclick="return false;">
+                🛒 Phase 3: Add to Cart
+            </button>
+        </div>
+        <span id="status-badge" class="status-badge">READY</span>
+    </div>
+
+    <div class="controls">
+        <button id="start-btn" onclick="startShopping()">
+            <span>▶</span> Start Shopping
+        </button>
+        <button id="stop-btn" onclick="stopShopping()" disabled>
+            <span>⏹</span> Stop
+        </button>
+    </div>
+
+    <div id="console" class="console-window">
+        <div class="log-line">Waiting to start...</div>
+    </div>
+
+    <script>
+        let pollInterval = null;
+        let lastLogIndex = 0;
+        let isAutoScroll = true;
+
+        const consoleDiv = document.getElementById('console');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const statusBadge = document.getElementById('status-badge');
+
+        // Detect manual start parameters from URL if needed
+        const urlParams = new URLSearchParams(window.location.search);
+        const listName = urlParams.get('list_name') || 'Groceries';
+        const repoRoot = urlParams.get('repo_root') || '.';
+
+        function updateStatus(status) {
+            statusBadge.className = 'status-badge ' + status.toLowerCase();
+            statusBadge.textContent = status;
+
+            if (status === 'RUNNING') {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                startPolling();
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                stopPolling();
+            }
+        }
+
+        async function startShopping() {
+            consoleDiv.innerHTML = '<div class="log-line">Starting shopper process...</div>';
+            lastLogIndex = 0;
+
+            try {
+                const response = await fetch('/phase3/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        list_name: listName,
+                        repo_root: repoRoot,
+                        ignore_unmapped: true // Explicitly requested feature
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    updateStatus('RUNNING');
+                } else {
+                    consoleDiv.innerHTML += `<div class="log-line log-error">Error: ${result.message}</div>`;
+                }
+            } catch (e) {
+                consoleDiv.innerHTML += `<div class="log-line log-error">Network Error: ${e.message}</div>`;
+            }
+        }
+
+        async function stopShopping() {
+            try {
+                await fetch('/phase3/stop', { method: 'POST' });
+                consoleDiv.innerHTML += '<div class="log-line log-error">Process stopped by user.</div>';
+                updateStatus('STOPPED');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function appendLogs(logs) {
+            if (!logs || logs.length === 0) return;
+
+            const wasAtBottom = consoleDiv.scrollHeight - consoleDiv.scrollTop === consoleDiv.clientHeight;
+
+            logs.forEach(line => {
+                const div = document.createElement('div');
+                div.className = 'log-line';
+                // Simple highlighting
+                if (line.toLowerCase().includes('error')) div.className += ' log-error';
+                if (line.toLowerCase().includes('success') || line.includes('Done')) div.className += ' log-success';
+                div.textContent = line;
+                consoleDiv.appendChild(div);
+            });
+
+            if (wasAtBottom) {
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        }
+
+        async function pollStatus() {
+            try {
+                const response = await fetch(`/phase3/status?since=${lastLogIndex}`);
+                const data = await response.json();
+
+                if (data.logs && data.logs.length > 0) {
+                    appendLogs(data.logs);
+                    lastLogIndex = data.next_index;
+                }
+
+                if (data.status !== 'RUNNING' && statusBadge.textContent === 'RUNNING') {
+                    // Process finished naturally
+                    updateStatus(data.status);
+                    if (data.return_code === 0) {
+                        consoleDiv.innerHTML += '<div class="log-line log-success">Process completed successfully.</div>';
+                    } else {
+                        consoleDiv.innerHTML += `<div class="log-line log-error">Process exited with code ${data.return_code}.</div>`;
+                    }
+                } else if (data.status === 'RUNNING' && statusBadge.textContent !== 'RUNNING') {
+                    // Recovering state if page refreshed
+                    updateStatus('RUNNING');
+                }
+            } catch (e) {
+                console.error("Polling error", e);
+            }
+        }
+
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(pollStatus, 1000);
+            pollStatus(); // Immediate check
+        }
+
+        function stopPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = null;
+        }
+
+        // Check status on load in case we refreshed a running page
+        startPolling();
+
+    </script>
+</body>
+
+</html>

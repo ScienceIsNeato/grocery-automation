@@ -782,13 +782,13 @@
         "Two boxes vanilla wafers"
       ]
     },
-    "that's my mom's salad dressing": {
+    "that\\'s my mom\\'s salad dressing": {
       "product_id": "3923782",
       "url": "https://www.hy-vee.com/aisles-online/p/3923782/hy-vee-thousand-island-dressing",
       "display_name": "Hy Vee Thousand Island Dressing",
       "added": "2026-01-06T00:55:38.170593",
       "original_requests": [
-        "That's my mom's salad dressing"
+        "That\\'s my mom\\'s salad dressing"
       ]
     },
     "havarti cheese slices": {
@@ -860,8 +860,7 @@
       "display_name": "Hy Vee Sweet Cream Salted Butter Quarters",
       "added": "2026-01-06T00:56:36.611102",
       "original_requests": [
-        "1 lb salted butter",
-        "lb salted butter"
+        "1 lb salted butter"
       ]
     },
     "spinach, fresh": {
@@ -886,10 +885,9 @@
       "product_id": "50217",
       "url": "https://www.hy-vee.com/aisles-online/p/50217/formula-409-multi-surface-original-cleaner-spray",
       "display_name": "Formula 409 Multi Surface Original Cleaner Spray",
-      "added": "2026-01-06T01:05:15.877656",
+      "added": "2026-01-06T01:00:49.240968",
       "original_requests": [
-        "409 spray",
-        "spray"
+        "409 spray"
       ]
     },
     "dawn dish soap": {
@@ -901,17 +899,17 @@
         "Dawn dish soap"
       ]
     },
-    "silver polish colon 1 wright''s": {
+    "silver polish colon 1 wright\\'\\'s": {
       "product_id": "27861",
       "url": "https://www.hy-vee.com/aisles-online/p/27861/twinkle-silver-polish-kit-4375-oz",
       "display_name": "Twinkle Silver Polish Kit 4375 Oz",
       "added": "2026-01-06T00:56:36.613934",
       "original_requests": [
-        "Silver polish colon 1 wright''s"
+        "Silver polish colon 1 wright\\'\\'s"
       ]
     }
   },
   "version": "1.0",
-  "last_updated": "2026-01-06T01:18:10.715944",
+  "last_updated": "2026-01-06T01:00:49.241153",
   "notes": "Product library for Hy-Vee automation"
 }
